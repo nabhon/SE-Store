@@ -41,7 +41,7 @@ public class Main {
     }
 
 
-    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList) throws FileNotFoundException {
+    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList) {
         Scanner input = new Scanner(System.in);
         whileyaya:
         while (true) {
