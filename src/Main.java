@@ -1,5 +1,6 @@
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -26,6 +27,7 @@ public class Main {
                         showProduct(productList);
                         break;
                     case 2:
+                        fileWrite(productList);
                         System.out.println("===== SE STORE =====\nThank you for using our service :3");
                         break mainWhile;
                     default:
@@ -34,15 +36,13 @@ public class Main {
             } catch (InputMismatchException i){
                 System.out.println("Input incorrect");
                 input.nextLine();
-            } catch (Exception e){
-                System.out.println(e.getMessage());
             }
         }
     }
 
     //อ่านไฟล์ Product.txt แล้วเก็บค่าลงใน Array productList
     public static void fileRead(ArrayList<Product> productList) throws FileNotFoundException {
-        File productInput = new File("C:\\Java\\PSP\\SE Store\\file\\PRODUCT.txt");
+        File productInput = new File("N:\\Java\\QueueArray\\SE-Store\\file\\PRODUCT.txt");
         Scanner fileReader = new Scanner(productInput);
         while (fileReader.hasNextLine()){
             String regex = "[\t]";
@@ -53,6 +53,19 @@ public class Main {
             int quality = Integer.parseInt(readList[3]);
             productList.add(new Product(id,name,price,quality));
         }
+    }
+
+    public static void fileWrite(ArrayList<Product> productList) throws FileNotFoundException {
+        File outputText = new File("N:\\Java\\QueueArray\\SE-Store\\file\\PRODUCTest.txt");
+        PrintWriter filePrinter = new PrintWriter(outputText);
+        for (Product P : productList) {
+            String id = String.valueOf(P.getId());
+            String name = P.getName();
+            String price = "$"+String.format("%.2f",P.getPrice());
+            String quantity = String.valueOf(P.getQuality());
+            filePrinter.printf("%s\t%s\t%s\t%s\n",id,name,price,quantity);
+        }
+        filePrinter.close();
     }
 
     //แสดงหน้าต่าง Menu
@@ -72,7 +85,7 @@ public class Main {
         for (Product p: productList) {
             String productNumber = String.format("%04d",productCount++);
             String name = p.getName();
-            String price = String.format("%.2f",p.getPrice())+"$";
+            String price = String.format("$%.2f",p.getPrice());
             int quantity = p.getQuality();
             System.out.printf("%-6s%-20s%-15s%-10d\n",productNumber,name,price,quantity);
         }
