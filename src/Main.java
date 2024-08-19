@@ -47,10 +47,10 @@ public class Main {
         while (fileReader.hasNextLine()){
             String regex = "[\t]";
             String[] readList = fileReader.nextLine().split(regex);
-            int id = Integer.valueOf(readList[0]);
+            int id = Integer.parseInt(readList[0]);
             String name = readList[1];
-            double price = Double.valueOf(readList[2].replace("$",""));
-            int quality = Integer.valueOf(readList[3]);
+            double price = Double.parseDouble(readList[2].replace("$",""));
+            int quality = Integer.parseInt(readList[3]);
             productList.add(new Product(id,name,price,quality));
         }
     }
