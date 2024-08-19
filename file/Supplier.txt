@@ -1,0 +1,8 @@
+1	Fresh Foods Co.	John Smith	123 Market St, City	012-345-6789	john@freshfoods.co
+2	Daily Dairy	Susan Johnson	456 Dairy Ln, Town	012-555-7890	susan@dailydairy.com
+3	Oceanic Seafood	Linda Brown	789 Fisherman Rd, Port	012-567-1234	linda@oceanicseafood.com
+4	Bakers Delight	Michael Lee	101 Baker St, City	012-345-5555	michael@bakersdelight.com
+5	Home Essentials Inc.	Sarah Green	234 Home Blvd, Suburb	012-888-9999	sarah@homeessentials.com
+6	Tech Innovators	David White	678 Tech Park, TechCity	012-444-1234	david@techinnovators.com
+7	Beauty Bliss	Emily Adams	345 Beauty Ave, Metro	012-222-3333	emily@beautybliss.com
+8	School Supplies Hub	James Moore	789 School St, Town	012-777-8888	james@schoolsupplieshub.com

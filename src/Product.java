@@ -3,18 +3,21 @@ public class Product {
     private String name;
     private double price;
     private int quality;
+    private int suppID;
     Product() {
         this.id = 0;
         this.name = "Unknown";
         this.price = 0;
         this.quality = 0;
+        this.suppID = 0;
     }
 
-    Product(int id,String name,double price,int quality){
+    Product(int id,String name,double price,int quality,int suppID){
         this.id = id;
         this.name = name;
         this.price = price;
         this.quality = quality;
+        this.suppID = suppID;
     }
 
     public int getId() {
@@ -47,5 +50,7 @@ public class Product {
 
     public void setQuality(int quality) {
         this.quality = quality;
+    }public int getSuppID(){
+        return this.suppID;
     }
 }
