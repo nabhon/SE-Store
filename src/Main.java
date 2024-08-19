@@ -70,8 +70,11 @@ public class Main {
         System.out.println("=========== SE STORE's Products ===========");
         System.out.printf("%-6s%-20s%-15s%-10s\n","#","Name","Price","Quantity");
         for (Product p: productList) {
+            String productNumber = String.format("%04d",productCount++);
+            String name = p.getName();
             String price = String.format("%.2f",p.getPrice())+"$";
-            System.out.printf("%-6d%-20s%-15s%-10d\n",productCount++,p.getName(),price,p.getQuality());
+            int quantity = p.getQuality();
+            System.out.printf("%-6s%-20s%-15s%-10d\n",productNumber,name,price,quantity);
         }
         System.out.println("===========================================");
     }
