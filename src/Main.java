@@ -47,9 +47,10 @@ public class Main {
         whileyaya:
         while (true) {
             System.out.println("===== SE STORE's Supplier =====");
-            System.out.printf("%-15s%-20s%-20s%-30s%-30s%-20s\n","SupplierID","SupplierName","ContactName","Address","Phone","Email");
+            System.out.printf("%-15s%-20s%-20s%-30s%-30s%-20s\n","#","SupplierName","ContactName","Address","Phone","Email");
+            int number = 1;
             for (Supplier S:supplierList) {
-                System.out.printf("%-15s%-20s%-20s%-30s%-30s%-20s\n",S.getSuppID(),S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
+                System.out.printf("%-15s%-20s%-20s%-30s%-30s%-20s\n",number++,S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
             }
             System.out.println("====================");
             while (true) {
@@ -58,8 +59,9 @@ public class Main {
                 String command = input.nextLine();
                 if (command.equalsIgnoreCase("Q")) {
                     break whileyaya;
-                } else if (findID(command, supplierList)) {
-                    showProduct(productList, Integer.parseInt(command));
+                } else if (isDigit(command)&&findID(command, supplierList)) {
+                    System.out.println("===== "+supplierList.get(Integer.parseInt(command)-1).getSuppName()+" =====");
+                    showProduct(productList, Integer.parseInt(supplierList.get(Integer.parseInt(command)-1).getSuppID()));
                     break;
                 } else {
                     System.out.println("Input Incorrect");
@@ -69,12 +71,20 @@ public class Main {
     }
 
     public static boolean findID(String id,ArrayList<Supplier> supplierList){
-        for (Supplier S:supplierList) {
-            if (S.getSuppID().equalsIgnoreCase(id)){
+        int checker = Integer.parseInt(id);
+        if (checker<=supplierList.size()&&checker>=0){
                 return true;
-            }
         }
         return false;
+    }
+
+    public static boolean isDigit(String id){
+        try {
+            Integer.parseInt(id);
+            return true;
+        } catch (Exception e){
+            return false;
+        }
     }
 
     //แสดงหน้าต่าง Menu
@@ -89,12 +99,14 @@ public class Main {
     //อ่านค่าจาก Array productList แล้วแสดงค่าออกมาเป็น List
     public static void showProduct(ArrayList<Product> productList,int suppID) {
         Scanner input = new Scanner(System.in);
-        System.out.printf("%-6s%-20s%-15s%-10s\n","#","Name","Price","Quantity");
+        int number = 0;
+        System.out.printf("%-6s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
         for (Product p: productList) {
             if (suppID==p.getSuppID()) {
-                String productNumber = String.format("%04d", p.getId());
+                number++;
+                String productNumber = String.valueOf(number);
                 String name = p.getName();
-                String price = String.format("$%.2f", p.getPrice());
+                String price = String.format("%.2f", p.getPrice()*34);
                 int quantity = p.getQuality();
                 System.out.printf("%-6s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
             }
@@ -123,9 +135,9 @@ public class Main {
             String[] readList = fileReader.nextLine().split(regex);
             int id = Integer.parseInt(readList[0]);
             String name = readList[1];
-            double price = Double.parseDouble(readList[2]);
+            double price = Double.parseDouble(readList[2].replace("$",""));
             int quality = Integer.parseInt(readList[3]);
-            int suppID = Integer.parseInt(readList[5]);
+            int suppID = Integer.parseInt(readList[4]);
             productList.add(new Product(id,name,price,quality,suppID));
         }
         File suppInput = new File("file/Supplier.txt");
