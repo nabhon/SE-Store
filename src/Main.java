@@ -9,6 +9,7 @@ Programe name : SE Store #2
 Student ID : 66160351
 Student name : Nabhon Karladee
 Date : 14/8/24
+Last Update : 2/9/24
 Description : SE Store app for showing store menu
  */
 
