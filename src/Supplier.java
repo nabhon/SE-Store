@@ -19,6 +19,30 @@ public class Supplier {
         return suppID;
     }
 
+    public void setSuppID(String suppID) {
+        this.suppID = suppID;
+    }
+
+    public void setSuppName(String suppName) {
+        this.suppName = suppName;
+    }
+
+    public void setContractName(String contractName) {
+        this.contractName = contractName;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getSuppName() {
         return suppName;
     }

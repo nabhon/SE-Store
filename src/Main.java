@@ -47,10 +47,10 @@ public class Main {
         whileyaya:
         while (true) {
             System.out.println("===== SE STORE's Supplier =====");
-            System.out.printf("%-15s%-20s%-20s%-30s%-30s%-20s\n","#","SupplierName","ContactName","Address","Phone","Email");
+            System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n","#","SupplierName","ContactName","Address","Phone","Email");
             int number = 1;
             for (Supplier S:supplierList) {
-                System.out.printf("%-15s%-20s%-20s%-30s%-30s%-20s\n",number++,S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
+                System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n",number++,S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
             }
             System.out.println("====================");
             while (true) {
@@ -72,7 +72,7 @@ public class Main {
 
     public static boolean findID(String id,ArrayList<Supplier> supplierList){
         int checker = Integer.parseInt(id);
-        if (checker<=supplierList.size()&&checker>=0){
+        if (checker<=supplierList.size()&&checker>0){
                 return true;
         }
         return false;
@@ -99,16 +99,15 @@ public class Main {
     //อ่านค่าจาก Array productList แล้วแสดงค่าออกมาเป็น List
     public static void showProduct(ArrayList<Product> productList,int suppID) {
         Scanner input = new Scanner(System.in);
-        int number = 0;
-        System.out.printf("%-6s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
+        System.out.printf("%-10s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
+        int number = 1;
         for (Product p: productList) {
             if (suppID==p.getSuppID()) {
-                number++;
-                String productNumber = String.valueOf(number);
+                String productNumber = String.valueOf(number++);
                 String name = p.getName();
                 String price = String.format("%.2f", p.getPrice()*34);
                 int quantity = p.getQuality();
-                System.out.printf("%-6s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
+                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
             }
         }
         System.out.println("===========================");
