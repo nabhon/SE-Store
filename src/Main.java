@@ -5,11 +5,11 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 /*
-Programe name : SE Store #2
+Programe name : SE Store #4
 Student ID : 66160351
 Student name : Nabhon Karladee
 Date : 14/8/24
-Last Update : 2/9/24
+Last Update : 7/9/24
 Description : SE Store app for showing store menu
  */
 
@@ -18,7 +18,8 @@ public class Main {
         Scanner input = new Scanner(System.in);
         ArrayList<Product> productList = new ArrayList<>();
         ArrayList<Supplier> supplierList = new ArrayList<>();
-        fileRead(productList,supplierList);
+        ArrayList<Member> memberList = new ArrayList<>();
+        fileRead(productList,supplierList,memberList);
         mainWhile:
         while (true){
             menu();
@@ -26,7 +27,8 @@ public class Main {
                 int command = input.nextInt();
                 switch (command){
                     case 1:
-                        showSupplier(productList,supplierList);
+                        //showSupplier(productList,supplierList);
+                        loginMenu(memberList,productList,supplierList);
                         break;
                     case 2:
                         System.out.println("===== SE STORE =====\nThank you for using our service :3");
@@ -90,12 +92,99 @@ public class Main {
     //แสดงหน้าต่าง Menu
     public static void menu(){
         System.out.println("===== SE STORE =====");
-        System.out.println("1. Show Supplier");
+        System.out.println("1. Login");
         System.out.println("2. Exit");
         System.out.println("====================");
-        System.out.print("Select (1-2) :\t");
+        System.out.print("Select (1-2) : ");
     }
 
+    public static void loginMenu(ArrayList<Member> memberList,ArrayList<Product> productList,ArrayList<Supplier> supplierList){
+        Scanner input = new Scanner(System.in);
+        int loginFail = 0;
+        while (true) {
+            System.out.println("===== Login =====");
+            System.out.print("Email : ");
+            String email = input.next();
+            System.out.print("Password : ");
+            String password = input.next();
+            int loginID = findMember(memberList, email, password);
+            if (loginID == -1) {
+                loginFail++;
+                System.out.println("Error! - Email or Password is Incorrect ("+loginFail+")");
+                if (loginFail==3){
+                    System.out.println("Sorry, Please try again later :(");
+                    break;
+                }
+            } else {
+                if (checkIDValid(memberList,loginID)){
+                    getUserData(memberList,productList,supplierList,loginID);
+                    break;
+                } else {
+                    System.out.println("Error! - Your Account are Expired!");
+                    break;
+                }
+            }
+        }
+    }
+
+    public static int findMember(ArrayList<Member> memberList,String email,String password){
+        for (Member m:memberList) {
+            String checkEmail = m.getEmail();
+            String checkPassword = m.getPassword().substring(9,11)+m.getPassword().substring(13,17);
+            if (email.equals(checkEmail)&&password.equals(checkPassword)){
+                return m.getMemberID();
+            }
+        }
+        return -1;
+    }
+
+    public static void getUserData(ArrayList<Member> memberList,ArrayList<Product> productList,ArrayList<Supplier> supplierList,int loginID){
+        Scanner input = new Scanner(System.in);
+        for (Member m: memberList) {
+            if (m.getMemberID()==loginID){
+                String displayName = m.getMemberLastName().substring(0,1).toUpperCase()+". "+m.getMemberName();
+                int indexOfAt = m.getEmail().indexOf("@");
+                String email = m.getEmail().substring(0,2)+"***"+m.getEmail().substring(indexOfAt,indexOfAt+3)+"***";
+                String phone = m.getPhone().substring(0,3)+"-"+m.getPhone().substring(3,6)+"-"+m.getPhone().substring(6,10);
+                String point = String.format("%.0f",m.getMemberPoint());
+                System.out.println("===== SE STORE =====");
+                System.out.println("Hello, "+displayName);
+                System.out.println("Email : "+email);
+                System.out.println("Phone : "+phone);
+                System.out.println("You have "+point+" Point");
+                while (true) {
+                System.out.println("====================");
+                System.out.println("1. Show Supplier");
+                System.out.println("2. Logout");
+                System.out.println("====================");
+                    System.out.print("Select (1-2) : ");
+                    try {
+                        int command = input.nextInt();
+                        if (command==1){
+                            showSupplier(productList,supplierList);
+                        } else if(command==2){
+                            break;
+                        } else {
+                            throw new InputMismatchException();
+                        }
+                    } catch (InputMismatchException E){
+                        System.out.println("Input incorrect");
+                        input.nextLine();
+                    }
+                }
+            }
+        }
+    }
+
+    public static boolean checkIDValid(ArrayList<Member> memberList,int loginID){
+        for (Member m: memberList) {
+            if (m.getMemberID()==loginID){
+                int checkIndex = Integer.parseInt(m.getPassword().substring(2,3));
+                return checkIndex == 1;
+            }
+        }
+        return false;
+    }
     //อ่านค่าจาก Array productList แล้วแสดงค่าออกมาเป็น List
     public static void showProduct(ArrayList<Product> productList,int suppID) {
         Scanner input = new Scanner(System.in);
@@ -126,7 +215,7 @@ public class Main {
     }
 
     //อ่านไฟล์ Product.txt แล้วเก็บค่าลงใน Array productList
-    public static void fileRead(ArrayList<Product> productList,ArrayList<Supplier> supplierList) throws FileNotFoundException {
+    public static void fileRead(ArrayList<Product> productList,ArrayList<Supplier> supplierList,ArrayList<Member> memberList) throws FileNotFoundException {
         File productInput = new File("file/PRODUCT.txt");
         Scanner fileReader = new Scanner(productInput);
         while (fileReader.hasNextLine()){
@@ -150,6 +239,20 @@ public class Main {
             String phone = readList[4];
             String email = readList[5];
             supplierList.add(new Supplier(id,name,contract,address,phone,email));
+        }
+        File memberInput = new File("file/MEMBER.txt");
+        fileReader = new Scanner(memberInput);
+        while (fileReader.hasNextLine()){
+            String regex = "\t+";
+            String[] readList = fileReader.nextLine().split(regex);
+            int memberID = Integer.parseInt(readList[0]);
+            String name = readList[1];
+            String lastName = readList[2];
+            String email = readList[3];
+            String password = readList[4];
+            String phone = readList[5];
+            double point = Double.parseDouble(readList[6]);
+            memberList.add(new Member(memberID,name,lastName,email,password,phone,point));
         }
     }
 
