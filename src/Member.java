@@ -17,6 +17,24 @@ public class Member {
         this.memberPoint = memberPoint;
     }
 
+    public boolean isStaff(){
+        int checkChar = Integer.parseInt(password.substring(6,7));
+        return checkChar==0;
+    }
+    public String getMemberStatus(){
+        int checkChar = Integer.parseInt(password.substring(6,7));
+        if (isStaff()){
+            return "Staff";
+        } else if (checkChar==1){
+            return "Regular";
+        } else if (checkChar==2){
+            return "Silver";
+        } else if (checkChar==3) {
+            return "Gold";
+        }
+        return "";
+    }
+
     public int getMemberID() {
         return memberID;
     }
