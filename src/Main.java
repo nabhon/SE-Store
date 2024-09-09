@@ -73,10 +73,7 @@ public class Main {
 
     public static boolean findID(String id,ArrayList<Supplier> supplierList){
         int checker = Integer.parseInt(id);
-        if (checker<=supplierList.size()&&checker>0){
-                return true;
-        }
-        return false;
+        return checker <= supplierList.size() && checker > 0;
     }
 
     public static boolean isDigit(String id){
