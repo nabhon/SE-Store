@@ -25,7 +25,6 @@ public class Main {
                 int command = input.nextInt();
                 switch (command){
                     case 1:
-                        //showSupplier(productList,supplierList);
                         loginMenu(memberList,productList,supplierList);
                         break;
                     case 2:
@@ -269,8 +268,9 @@ public class Main {
             checkValid = false;
         }
         if (checkValid){
+            String phone = phoneNum.substring(0,3)+"-"+phoneNum.substring(3,6)+"-"+phoneNum.substring(6,10);
             String address = buildingNum+" "+streetName+", "+cityName;
-            Supplier newSupplier = new Supplier(String.valueOf(supplierList.size()+1),name,contractName,address,phoneNum,email);
+            Supplier newSupplier = new Supplier(String.valueOf(supplierList.size()+1),name,contractName,address,phone,email);
             supplierList.add(newSupplier);
             supplierWrite(newSupplier);
             System.out.println("Success - New Supplier has been created!");
@@ -320,7 +320,7 @@ public class Main {
         }
     }
 
-    //อ่านไฟล์ Product.txt แล้วเก็บค่าลงใน Array productList
+    //อ่านไฟล์ Text ข้อมูล แล้วเก็บค่าลงใน Array productList
     public static void fileRead(ArrayList<Product> productList,ArrayList<Supplier> supplierList,ArrayList<Member> memberList) throws FileNotFoundException {
         File productInput = new File("file/PRODUCT.txt");
         Scanner fileReader = new Scanner(productInput);
