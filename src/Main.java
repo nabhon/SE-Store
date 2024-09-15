@@ -41,70 +41,6 @@ public class Main {
         }
     }
 
-
-    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList) {
-        Scanner input = new Scanner(System.in);
-        whileyaya:
-        while (true) {
-            System.out.println("===== SE STORE's Supplier =====");
-            System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n","#","SupplierName","ContactName","Address","Phone","Email");
-            int number = 1;
-            for (Supplier S:supplierList) {
-                System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n",number++,S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
-            }
-            System.out.println("====================");
-            while (true) {
-                System.out.println("Type Supplier Number You want and Press Q to Exit");
-                System.out.print("Select : ");
-                String command = input.nextLine();
-                if (command.equalsIgnoreCase("Q")) {
-                    break whileyaya;
-                } else if (isDigit(command)&&findID(command,supplierList.size())) {
-                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1));
-                    break;
-                } else {
-                    System.out.println("Input Incorrect");
-                }
-            }
-        }
-    }
-
-    //อ่านค่าจาก Array productList แล้วแสดงค่าออกมาเป็น List
-    public static void showProduct(ArrayList<Product> productList,Supplier selectSupplier) {
-        Scanner input = new Scanner(System.in);
-        int suppID = Integer.parseInt(selectSupplier.getSuppID());
-        System.out.println("===== "+selectSupplier.getSuppName()+" =====");
-        System.out.printf("%-10s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
-        int number = 1;
-        for (Product p: productList) {
-            if (suppID==p.getSuppID()) {
-                String productNumber = String.valueOf(number++);
-                String name = p.getName();
-                String price = String.format("%.2f", p.getPrice()*34);
-                int quantity = p.getQuality();
-                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
-            }
-        }
-        System.out.println("===========================");
-        whilebreak:
-        while (true){
-            System.out.print("Press Q to Exit : ");
-            String command = input.next();
-            switch (command){
-                case "Q","q" :
-                    break whilebreak;
-                default :
-                    System.out.println("Input Incorrect");
-                    break;
-            }
-        }
-    }
-
-    public static boolean findID(String id,int supplierListSize){
-        int checker = Integer.parseInt(id);
-        return checker <= supplierListSize && checker > 0;
-    }
-
     //Check if String X is a digit
     public static boolean isDigit(String id){
         try {
@@ -247,6 +183,71 @@ public class Main {
             }
 
         }
+    }
+
+    //Print supplier from supplierList
+    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList) {
+        Scanner input = new Scanner(System.in);
+        whileyaya:
+        while (true) {
+            System.out.println("===== SE STORE's Supplier =====");
+            System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n","#","SupplierName","ContactName","Address","Phone","Email");
+            int number = 1;
+            for (Supplier S:supplierList) {
+                System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n",number++,S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
+            }
+            System.out.println("====================");
+            while (true) {
+                System.out.println("Type Supplier Number You want or Press Q to Exit");
+                System.out.print("Select : ");
+                String command = input.nextLine();
+                if (command.equalsIgnoreCase("Q")) {
+                    break whileyaya;
+                } else if (isDigit(command)&&findID(command,supplierList.size())) {
+                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1));
+                    break;
+                } else {
+                    System.out.println("Input Incorrect");
+                }
+            }
+        }
+    }
+
+    //Print product from productList that has ID equal to supplier ID
+    public static void showProduct(ArrayList<Product> productList,Supplier selectSupplier) {
+        Scanner input = new Scanner(System.in);
+        int suppID = Integer.parseInt(selectSupplier.getSuppID());
+        System.out.println("===== "+selectSupplier.getSuppName()+" =====");
+        System.out.printf("%-10s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
+        int number = 1;
+        for (Product p: productList) {
+            if (suppID==p.getSuppID()) {
+                String productNumber = String.valueOf(number++);
+                String name = p.getName();
+                String price = String.format("%.2f", p.getPrice()*34);
+                int quantity = p.getQuality();
+                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
+            }
+        }
+        System.out.println("===========================");
+        whilebreak:
+        while (true){
+            System.out.print("Press Q to Exit : ");
+            String command = input.next();
+            switch (command){
+                case "Q","q" :
+                    break whilebreak;
+                default :
+                    System.out.println("Input Incorrect");
+                    break;
+            }
+        }
+    }
+
+    //Check if user input for supplier is within supplierList
+    public static boolean findID(String id,int supplierListSize){
+        int checker = Integer.parseInt(id);
+        return checker <= supplierListSize && checker > 0;
     }
 
     //Add new supplier to the file
