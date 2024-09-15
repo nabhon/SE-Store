@@ -17,6 +17,16 @@ public class Member {
         this.memberPoint = memberPoint;
     }
 
+    public Member(){
+        this.memberID = 0;
+        this.memberName = "Unknown";
+        this.memberLastName = "Unknown";
+        this.email = "UnknownEmail";
+        this.password = "DF1EES1SC46KP9812GC";
+        this.phone = "1231231234";
+        this.memberPoint = 0;
+    }
+
     public boolean isStaff(){
         int checkChar = Integer.parseInt(password.substring(6,7));
         return checkChar==0;

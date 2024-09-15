@@ -59,9 +59,8 @@ public class Main {
                 String command = input.nextLine();
                 if (command.equalsIgnoreCase("Q")) {
                     break whileyaya;
-                } else if (isDigit(command)&&findID(command, supplierList)) {
-                    System.out.println("===== "+supplierList.get(Integer.parseInt(command)-1).getSuppName()+" =====");
-                    showProduct(productList, Integer.parseInt(supplierList.get(Integer.parseInt(command)-1).getSuppID()));
+                } else if (isDigit(command)&&findID(command,supplierList.size())) {
+                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1));
                     break;
                 } else {
                     System.out.println("Input Incorrect");
@@ -70,11 +69,43 @@ public class Main {
         }
     }
 
-    public static boolean findID(String id,ArrayList<Supplier> supplierList){
-        int checker = Integer.parseInt(id);
-        return checker <= supplierList.size() && checker > 0;
+    //อ่านค่าจาก Array productList แล้วแสดงค่าออกมาเป็น List
+    public static void showProduct(ArrayList<Product> productList,Supplier selectSupplier) {
+        Scanner input = new Scanner(System.in);
+        int suppID = Integer.parseInt(selectSupplier.getSuppID());
+        System.out.println("===== "+selectSupplier.getSuppName()+" =====");
+        System.out.printf("%-10s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
+        int number = 1;
+        for (Product p: productList) {
+            if (suppID==p.getSuppID()) {
+                String productNumber = String.valueOf(number++);
+                String name = p.getName();
+                String price = String.format("%.2f", p.getPrice()*34);
+                int quantity = p.getQuality();
+                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
+            }
+        }
+        System.out.println("===========================");
+        whilebreak:
+        while (true){
+            System.out.print("Press Q to Exit : ");
+            String command = input.next();
+            switch (command){
+                case "Q","q" :
+                    break whilebreak;
+                default :
+                    System.out.println("Input Incorrect");
+                    break;
+            }
+        }
     }
 
+    public static boolean findID(String id,int supplierListSize){
+        int checker = Integer.parseInt(id);
+        return checker <= supplierListSize && checker > 0;
+    }
+
+    //Check if String X is a digit
     public static boolean isDigit(String id){
         try {
             Integer.parseInt(id);
@@ -84,7 +115,7 @@ public class Main {
         }
     }
 
-    //แสดงหน้าต่าง Menu
+    //Print menu
     public static void menu(){
         System.out.println("===== SE STORE =====");
         System.out.println("1. Login");
@@ -93,7 +124,8 @@ public class Main {
         System.out.print("Select (1-2) : ");
     }
 
-    public static void loginMenu(ArrayList<Member> memberList,ArrayList<Product> productList,ArrayList<Supplier> supplierList) throws IOException {
+    //Method for login menu
+    public static void loginMenu(ArrayList<Member> memberList,ArrayList<Product> productList,ArrayList<Supplier> supplierList) {
         Scanner input = new Scanner(System.in);
         int loginFail = 0;
         while (true) {
@@ -111,30 +143,29 @@ public class Main {
                     break;
                 }
             } else {
-                if (checkIDValid(memberList,loginID)&&isStaff(memberList,loginID)){
-                    getStaffData(memberList,productList,supplierList,loginID);
-                    break;
-                } else if (checkIDValid(memberList,loginID)){
-                    getUserData(memberList,productList,supplierList,loginID);
-                    break;
+                Member currentLogin = getMember(loginID,memberList);
+                if (checkIDValid(memberList,loginID)){
+                    getUserData(currentLogin,productList,supplierList);
                 } else {
                     System.out.println("Error! - Your Account are Expired!");
-                    break;
                 }
+                break;
             }
         }
     }
 
-    public static boolean isStaff(ArrayList<Member> memberList,int loginID){
-        for (Member m:memberList) {
+    //Check if account in expired or not
+    public static boolean checkIDValid(ArrayList<Member> memberList,int loginID){
+        for (Member m: memberList) {
             if (m.getMemberID()==loginID){
-                return m.isStaff();
+                int checkIndex = Integer.parseInt(m.getPassword().substring(2,3));
+                return checkIndex == 1;
             }
         }
         return false;
     }
 
-    //Method to find LoginID of a member
+    //Method to find loginID of a member
     public static int findMember(ArrayList<Member> memberList,String email,String password){
         for (Member m:memberList) {
             String checkEmail = m.getEmail();
@@ -146,84 +177,75 @@ public class Main {
         return -1;
     }
 
-    //Show user data and menu
-    public static void getUserData(ArrayList<Member> memberList,ArrayList<Product> productList,ArrayList<Supplier> supplierList,int loginID){
-        Scanner input = new Scanner(System.in);
-        for (Member m: memberList) {
+    //Get a Member from memberList using loginID to find
+    public static Member getMember(int loginID,ArrayList<Member> memberList){
+        for (Member m:memberList) {
             if (m.getMemberID()==loginID){
-                String displayName = m.getMemberLastName().substring(0,1).toUpperCase()+". "+m.getMemberName()+" ("+m.getMemberStatus()+")";
-                int indexOfAt = m.getEmail().indexOf("@");
-                String email = m.getEmail().substring(0,2)+"***"+m.getEmail().substring(indexOfAt,indexOfAt+3)+"***";
-                String phone = m.getPhone().substring(0,3)+"-"+m.getPhone().substring(3,6)+"-"+m.getPhone().substring(6,10);
-                String point = String.format("%.0f",m.getMemberPoint());
-                System.out.println("===== SE STORE =====");
-                System.out.println("Hello, "+displayName);
-                System.out.println("Email : "+email);
-                System.out.println("Phone : "+phone);
-                System.out.println("You have "+point+" Point");
-                while (true) {
+                return m;
+            }
+        }
+        return new Member();
+    }
+
+    //Show user data and menu
+    public static void getUserData(Member currentLogin,ArrayList<Product> productList,ArrayList<Supplier> supplierList){
+        Scanner input = new Scanner(System.in);
+        String displayName = currentLogin.getMemberLastName().substring(0,1).toUpperCase()+". "+currentLogin.getMemberName()+" ("+currentLogin.getMemberStatus()+")";
+        int indexOfAt = currentLogin.getEmail().indexOf("@");
+        String email = currentLogin.getEmail().substring(0,2)+"***"+currentLogin.getEmail().substring(indexOfAt,indexOfAt+3)+"***";
+        String phone = currentLogin.getPhone().substring(0,3)+"-"+currentLogin.getPhone().substring(3,6)+"-"+currentLogin.getPhone().substring(6,10);
+        String point = String.format("%.0f",currentLogin.getMemberPoint());
+        System.out.println("===== SE STORE =====");
+        System.out.println("Hello, "+displayName);
+        System.out.println("Email : "+email);
+        System.out.println("Phone : "+phone);
+        System.out.println("You have "+point+" Point");
+        while (true) {
+            if (currentLogin.isStaff()) {
+                System.out.println("====================");
+                System.out.println("1. Show Supplier");
+                System.out.println("2. Add Supplier");
+                System.out.println("3. Logout");
+                System.out.println("====================");
+                System.out.print("Select (1-3) : ");
+                try {
+                    int command = input.nextInt();
+                    if (command==1){
+                        showSupplier(productList,supplierList);
+                    } else if(command==2){
+                        addSupplier(supplierList);
+                    } else if (command==3) {
+                        break;
+                    } else {
+                        throw new InputMismatchException();
+                    }
+                } catch (InputMismatchException E){
+                    System.out.println("Input incorrect");
+                    input.nextLine();
+                } catch (IOException I){
+                    System.out.println("IOException Error @getUserData");
+                }
+            } else {
                 System.out.println("====================");
                 System.out.println("1. Show Supplier");
                 System.out.println("2. Logout");
                 System.out.println("====================");
-                    System.out.print("Select (1-2) : ");
-                    try {
-                        int command = input.nextInt();
-                        if (command==1){
-                            showSupplier(productList,supplierList);
-                        } else if(command==2){
-                            break;
-                        } else {
-                            throw new InputMismatchException();
-                        }
-                    } catch (InputMismatchException E){
-                        System.out.println("Input incorrect");
-                        input.nextLine();
+                System.out.print("Select (1-2) : ");
+                try {
+                    int command = input.nextInt();
+                    if (command==1){
+                        showSupplier(productList,supplierList);
+                    } else if(command==2){
+                        break;
+                    } else {
+                        throw new InputMismatchException();
                     }
+                } catch (InputMismatchException E){
+                    System.out.println("Input incorrect");
+                    input.nextLine();
                 }
             }
-        }
-    }
 
-    //Show staff data and menu
-    public static void getStaffData(ArrayList<Member> memberList,ArrayList<Product> productList,ArrayList<Supplier> supplierList,int loginID) throws IOException{
-        Scanner input = new Scanner(System.in);
-        for (Member m: memberList) {
-            if (m.getMemberID()==loginID){
-                String displayName = m.getMemberLastName().substring(0,1).toUpperCase()+". "+m.getMemberName()+" ("+m.getMemberStatus()+")";
-                int indexOfAt = m.getEmail().indexOf("@");
-                String email = m.getEmail().substring(0,2)+"***"+m.getEmail().substring(indexOfAt,indexOfAt+3)+"***";
-                String phone = m.getPhone().substring(0,3)+"-"+m.getPhone().substring(3,6)+"-"+m.getPhone().substring(6,10);
-                String point = String.format("%.0f",m.getMemberPoint());
-                System.out.println("===== SE STORE =====");
-                System.out.println("Hello, "+displayName);
-                System.out.println("Email : "+email);
-                System.out.println("Phone : "+phone);
-                System.out.println("You have "+point+" Point");
-                while (true) {
-                    System.out.println("====================");
-                    System.out.println("1. Show Supplier");
-                    System.out.println("2. Add Supplier");
-                    System.out.println("3. Logout");
-                    System.out.println("====================");
-                    System.out.print("Select (1-3) : ");
-                    try {
-                        int command = input.nextInt();
-                        if (command==1){
-                            showSupplier(productList,supplierList);
-                        } else if(command==2){
-                            addSupplier(supplierList);
-                        } else if (command==3) {
-                            break;
-                        } else {
-                            throw new InputMismatchException();
-                        }
-                    } catch (InputMismatchException E){
-                        System.out.println("Input incorrect");
-                        input.nextLine();
-                    }
-                }
-            }
         }
     }
 
@@ -278,46 +300,6 @@ public class Main {
             System.out.println("Error! - Your Information are Incorrect!");
         }
         System.out.println("======================");
-    }
-
-    //Check if account in expired or not
-    public static boolean checkIDValid(ArrayList<Member> memberList,int loginID){
-        for (Member m: memberList) {
-            if (m.getMemberID()==loginID){
-                int checkIndex = Integer.parseInt(m.getPassword().substring(2,3));
-                return checkIndex == 1;
-            }
-        }
-        return false;
-    }
-
-    //อ่านค่าจาก Array productList แล้วแสดงค่าออกมาเป็น List
-    public static void showProduct(ArrayList<Product> productList,int suppID) {
-        Scanner input = new Scanner(System.in);
-        System.out.printf("%-10s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
-        int number = 1;
-        for (Product p: productList) {
-            if (suppID==p.getSuppID()) {
-                String productNumber = String.valueOf(number++);
-                String name = p.getName();
-                String price = String.format("%.2f", p.getPrice()*34);
-                int quantity = p.getQuality();
-                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
-            }
-        }
-        System.out.println("===========================");
-        whilebreak:
-        while (true){
-            System.out.print("Press Q to Exit : ");
-            String command = input.next();
-            switch (command){
-                case "Q","q" :
-                    break whilebreak;
-                default :
-                    System.out.println("Input Incorrect");
-                    break;
-            }
-        }
     }
 
     //อ่านไฟล์ Text ข้อมูล แล้วเก็บค่าลงใน Array productList
