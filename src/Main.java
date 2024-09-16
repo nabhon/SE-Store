@@ -3,7 +3,7 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 /*
-Programe name : SE Store #4
+Program name : SE Store #4
 Student ID : 66160351
 Student name : Nabhon Karladee
 Date : 14/8/24
@@ -125,7 +125,7 @@ public class Main {
     }
 
     //Print supplier from supplierList
-    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList,Member currectLogin) {
+    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList,Member currentLogin) {
         Scanner input = new Scanner(System.in);
         whileyaya:
         while (true) {
@@ -143,7 +143,7 @@ public class Main {
                 if (command.equalsIgnoreCase("Q")) {
                     break whileyaya;
                 } else if (isDigit(command)&&findID(command,supplierList.size())) {
-                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1),currectLogin);
+                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1),currentLogin);
                     break;
                 } else {
                     System.out.println("Input Incorrect");
