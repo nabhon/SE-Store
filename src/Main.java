@@ -147,7 +147,7 @@ public class Main {
                 try {
                     int command = input.nextInt();
                     if (command==1){
-                        showSupplier(productList,supplierList);
+                        showSupplier(productList,supplierList,currentLogin);
                     } else if(command==2){
                         addSupplier(supplierList);
                     } else if (command==3) {
@@ -170,7 +170,7 @@ public class Main {
                 try {
                     int command = input.nextInt();
                     if (command==1){
-                        showSupplier(productList,supplierList);
+                        showSupplier(productList,supplierList,currentLogin);
                     } else if(command==2){
                         break;
                     } else {
@@ -186,7 +186,7 @@ public class Main {
     }
 
     //Print supplier from supplierList
-    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList) {
+    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList,Member currectLogin) {
         Scanner input = new Scanner(System.in);
         whileyaya:
         while (true) {
@@ -204,7 +204,7 @@ public class Main {
                 if (command.equalsIgnoreCase("Q")) {
                     break whileyaya;
                 } else if (isDigit(command)&&findID(command,supplierList.size())) {
-                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1));
+                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1),currectLogin);
                     break;
                 } else {
                     System.out.println("Input Incorrect");
@@ -214,32 +214,86 @@ public class Main {
     }
 
     //Print product from productList that has ID equal to supplier ID
-    public static void showProduct(ArrayList<Product> productList,Supplier selectSupplier) {
+    public static void showProduct(ArrayList<Product> productList,Supplier selectSupplier,Member currentLogin) {
         Scanner input = new Scanner(System.in);
+        ArrayList<Product> productShow = new ArrayList<>();
         int suppID = Integer.parseInt(selectSupplier.getSuppID());
-        System.out.println("===== "+selectSupplier.getSuppName()+" =====");
-        System.out.printf("%-10s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
-        int number = 1;
+
         for (Product p: productList) {
             if (suppID==p.getSuppID()) {
-                String productNumber = String.valueOf(number++);
+                productShow.add(p);
+                /*String productNumber = String.valueOf(number++);
                 String name = p.getName();
                 String price = String.format("%.2f", p.getPrice()*34);
                 int quantity = p.getQuality();
-                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
+                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);*/
             }
         }
-        System.out.println("===========================");
         whilebreak:
         while (true){
-            System.out.print("Press Q to Exit : ");
-            String command = input.next();
-            switch (command){
-                case "Q","q" :
-                    break whilebreak;
-                default :
-                    System.out.println("Input Incorrect");
-                    break;
+            System.out.println("===== "+selectSupplier.getSuppName()+" =====");
+            System.out.printf("%-10s%-20s%-25s%-10s\n","#","Name","Price(฿)","Quantity");
+            int number = 1;
+            for (Product p : productShow) {
+                String productNumber = String.valueOf(number++);
+                String name = p.getName();
+                String price;
+                int quantity = p.getQuality();
+                if (currentLogin.getDiscount()!=1){
+                    price = String.format("(%.2f)",p.getPrice()*34);
+                    String discountPrice = String.format("%.2f",p.getPrice()*34*currentLogin.getDiscount());
+                    System.out.printf("%-10s%-20s%-7s%-10s%8s%-10d\n", productNumber, name,discountPrice,price,"", quantity);
+                } else {
+                    price = String.format("%.2f",p.getPrice()*34);
+                    System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
+                }
+            }
+            System.out.println("===========================");
+            whileinside:
+            while (true){
+                System.out.println("1. Show Name By ASC");
+                System.out.println("2. Show Price By DESC");
+                System.out.print("Press Q to Exit : ");
+                String command = input.next();
+                switch (command){
+                    case "1":
+                        sortByName(productShow);
+                        break whileinside;
+                    case "2":
+                        sortByPrice(productShow);
+                        break whileinside;
+                    case "Q","q" :
+                        break whilebreak;
+                    default :
+                        System.out.println("Input Incorrect");
+                        break;
+                }
+            }
+        }
+    }
+
+    public static void sortByName(ArrayList<Product> productShow){
+        Product temp;
+        for (int i = 1; i < productShow.size()-1; i++) {
+            for (int j = productShow.size()-1 ; j >= i  ; j--) {
+                if ((productShow.get(j).findValue())<productShow.get(j-1).findValue()){
+                    temp = productShow.get(j);
+                    productShow.set(j,productShow.get(j-1));
+                    productShow.set(j-1,temp);
+                }
+            }
+        }
+    }
+
+    public static void sortByPrice(ArrayList<Product> productShow){
+        Product temp;
+        for (int i = 1; i < productShow.size()-1; i++) {
+            for (int j = productShow.size()-1 ; j >= i  ; j--) {
+                if ((productShow.get(j).getPrice())>productShow.get(j-1).getPrice()){
+                    temp = productShow.get(j);
+                    productShow.set(j,productShow.get(j-1));
+                    productShow.set(j-1,temp);
+                }
             }
         }
     }

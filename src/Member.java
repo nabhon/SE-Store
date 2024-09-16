@@ -45,6 +45,17 @@ public class Member {
         return "";
     }
 
+    public double getDiscount(){
+        int checkChar = Integer.parseInt(password.substring(6,7));
+        if (checkChar==2){
+            return 0.95;
+        } else if (checkChar==3) {
+            return 0.9;
+        } else {
+            return 1;
+        }
+    }
+
     public int getMemberID() {
         return memberID;
     }
