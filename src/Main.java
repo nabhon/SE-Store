@@ -218,15 +218,9 @@ public class Main {
         Scanner input = new Scanner(System.in);
         ArrayList<Product> productShow = new ArrayList<>();
         int suppID = Integer.parseInt(selectSupplier.getSuppID());
-
         for (Product p: productList) {
             if (suppID==p.getSuppID()) {
                 productShow.add(p);
-                /*String productNumber = String.valueOf(number++);
-                String name = p.getName();
-                String price = String.format("%.2f", p.getPrice()*34);
-                int quantity = p.getQuality();
-                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);*/
             }
         }
         whilebreak:
