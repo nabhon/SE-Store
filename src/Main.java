@@ -17,7 +17,7 @@ public class Main {
         ArrayList<Product> productList = new ArrayList<>();
         ArrayList<Supplier> supplierList = new ArrayList<>();
         ArrayList<Member> memberList = new ArrayList<>();
-        fileRead(productList,supplierList,memberList);
+        FileHandle.fileRead(productList,supplierList,memberList);
         mainWhile:
         while (true){
             menu();
@@ -25,7 +25,7 @@ public class Main {
                 int command = input.nextInt();
                 switch (command){
                     case 1:
-                        loginMenu(memberList,productList,supplierList);
+                        LoginMenu.loginMenu(memberList,productList,supplierList);
                         break;
                     case 2:
                         System.out.println("===== SE STORE =====\nThank you for using our service :3");
@@ -61,67 +61,6 @@ public class Main {
     }
 
     //Method for login menu
-    public static void loginMenu(ArrayList<Member> memberList,ArrayList<Product> productList,ArrayList<Supplier> supplierList) {
-        Scanner input = new Scanner(System.in);
-        int loginFail = 0;
-        while (true) {
-            System.out.println("===== Login =====");
-            System.out.print("Email : ");
-            String email = input.next();
-            System.out.print("Password : ");
-            String password = input.next();
-            int loginID = findMember(memberList, email, password);
-            if (loginID == -1) {
-                loginFail++;
-                System.out.println("Error! - Email or Password is Incorrect ("+loginFail+")");
-                if (loginFail==3){
-                    System.out.println("Sorry, Please try again later :(");
-                    break;
-                }
-            } else {
-                Member currentLogin = getMember(loginID,memberList);
-                if (checkIDValid(memberList,loginID)){
-                    getUserData(currentLogin,productList,supplierList);
-                } else {
-                    System.out.println("Error! - Your Account are Expired!");
-                }
-                break;
-            }
-        }
-    }
-
-    //Check if account in expired or not
-    public static boolean checkIDValid(ArrayList<Member> memberList,int loginID){
-        for (Member m: memberList) {
-            if (m.getMemberID()==loginID){
-                int checkIndex = Integer.parseInt(m.getPassword().substring(2,3));
-                return checkIndex == 1;
-            }
-        }
-        return false;
-    }
-
-    //Method to find loginID of a member
-    public static int findMember(ArrayList<Member> memberList,String email,String password){
-        for (Member m:memberList) {
-            String checkEmail = m.getEmail();
-            String checkPassword = m.getPassword().substring(9,11)+m.getPassword().substring(13,17);
-            if (email.equals(checkEmail)&&password.equals(checkPassword)){
-                return m.getMemberID();
-            }
-        }
-        return -1;
-    }
-
-    //Get a Member from memberList using loginID to find
-    public static Member getMember(int loginID,ArrayList<Member> memberList){
-        for (Member m:memberList) {
-            if (m.getMemberID()==loginID){
-                return m;
-            }
-        }
-        return new Member();
-    }
 
     //Show user data and menu
     public static void getUserData(Member currentLogin,ArrayList<Product> productList,ArrayList<Supplier> supplierList){
@@ -149,7 +88,7 @@ public class Main {
                     if (command==1){
                         showSupplier(productList,supplierList,currentLogin);
                     } else if(command==2){
-                        addSupplier(supplierList);
+                        FileHandle.addSupplier(supplierList);
                     } else if (command==3) {
                         break;
                     } else {
@@ -251,10 +190,10 @@ public class Main {
                 String command = input.next();
                 switch (command){
                     case "1":
-                        sortByName(productShow);
+                        Sort.sortByNameASC(productShow);
                         break whileinside;
                     case "2":
-                        sortByPrice(productShow);
+                        Sort.sortByPriceDESC(productShow);
                         break whileinside;
                     case "Q","q" :
                         break whilebreak;
@@ -266,140 +205,11 @@ public class Main {
         }
     }
 
-    public static void sortByName(ArrayList<Product> productShow){
-        Product temp;
-        for (int i = 1; i < productShow.size()-1; i++) {
-            for (int j = productShow.size()-1 ; j >= i  ; j--) {
-                if ((productShow.get(j).findValue())<productShow.get(j-1).findValue()){
-                    temp = productShow.get(j);
-                    productShow.set(j,productShow.get(j-1));
-                    productShow.set(j-1,temp);
-                }
-            }
-        }
-    }
-
-    public static void sortByPrice(ArrayList<Product> productShow){
-        Product temp;
-        for (int i = 1; i < productShow.size()-1; i++) {
-            for (int j = productShow.size()-1 ; j >= i  ; j--) {
-                if ((productShow.get(j).getPrice())>productShow.get(j-1).getPrice()){
-                    temp = productShow.get(j);
-                    productShow.set(j,productShow.get(j-1));
-                    productShow.set(j-1,temp);
-                }
-            }
-        }
-    }
-
     //Check if user input for supplier is within supplierList
     public static boolean findID(String id,int supplierListSize){
         int checker = Integer.parseInt(id);
         return checker <= supplierListSize && checker > 0;
     }
 
-    //Add new supplier to the file
-    public static void addSupplier(ArrayList<Supplier> supplierList) throws IOException {
-        Scanner input = new Scanner(System.in);
-        boolean checkValid = true;
-        System.out.println("=====Add Supplier=====");
-        System.out.print("Supplier Name : ");
-        String name = input.nextLine();
-        System.out.print("Contract Name : ");
-        String contractName = input.nextLine();
-        System.out.print("Building Number : ");
-        String buildingNum = input.nextLine();
-        System.out.print("Street Name : ");
-        String streetName = input.nextLine();
-        System.out.print("City : ");
-        String cityName = input.nextLine();
-        System.out.print("Phone : ");
-        String phoneNum = input.nextLine();
-        System.out.print("Email : ");
-        String email = input.nextLine();
-        if (name.length()<=2){
-            checkValid = false;
-        }
-        if (contractName.length()<=4){
-            checkValid = false;
-        }
-        if (buildingNum.length()==0){
-            checkValid = false;
-        }
-        if (streetName.length()<=2){
-            checkValid = false;
-        }
-        if (cityName.length()<=2){
-            checkValid = false;
-        }
-        if (phoneNum.length()!=10){
-            checkValid = false;
-        }
-        if (email.length()<=2||!email.contains("@")){
-            checkValid = false;
-        }
-        if (checkValid){
-            String phone = phoneNum.substring(0,3)+"-"+phoneNum.substring(3,6)+"-"+phoneNum.substring(6,10);
-            String address = buildingNum+" "+streetName+", "+cityName;
-            Supplier newSupplier = new Supplier(String.valueOf(supplierList.size()+1),name,contractName,address,phone,email);
-            supplierList.add(newSupplier);
-            supplierWrite(newSupplier);
-            System.out.println("Success - New Supplier has been created!");
-        } else {
-            System.out.println("Error! - Your Information are Incorrect!");
-        }
-        System.out.println("======================");
-    }
-
-    //อ่านไฟล์ Text ข้อมูล แล้วเก็บค่าลงใน Array productList
-    public static void fileRead(ArrayList<Product> productList,ArrayList<Supplier> supplierList,ArrayList<Member> memberList) throws FileNotFoundException {
-        File productInput = new File("file/PRODUCT.txt");
-        Scanner fileReader = new Scanner(productInput);
-        while (fileReader.hasNextLine()){
-            String regex = "\t+";
-            String[] readList = fileReader.nextLine().split(regex);
-            int id = Integer.parseInt(readList[0]);
-            String name = readList[1];
-            double price = Double.parseDouble(readList[2].replace("$",""));
-            int quality = Integer.parseInt(readList[3]);
-            int suppID = Integer.parseInt(readList[4]);
-            productList.add(new Product(id,name,price,quality,suppID));
-        }
-        File suppInput = new File("file/SUPPLIER.txt");
-        fileReader = new Scanner(suppInput);
-        while (fileReader.hasNextLine()){
-            String[] readList = fileReader.nextLine().split("\t+");
-            String id = readList[0];
-            String name = readList[1];
-            String contract = readList[2];
-            String address = readList[3];
-            String phone = readList[4];
-            String email = readList[5];
-            supplierList.add(new Supplier(id,name,contract,address,phone,email));
-        }
-        File memberInput = new File("file/MEMBER.txt");
-        fileReader = new Scanner(memberInput);
-        while (fileReader.hasNextLine()){
-            String regex = "\t+";
-            String[] readList = fileReader.nextLine().split(regex);
-            int memberID = Integer.parseInt(readList[0]);
-            String name = readList[1];
-            String lastName = readList[2];
-            String email = readList[3];
-            String password = readList[4];
-            String phone = readList[5];
-            double point = Double.parseDouble(readList[6]);
-            memberList.add(new Member(memberID,name,lastName,email,password,phone,point));
-        }
-    }
-
-    //Method to Write new supplier to Supplier file as it get create
-    public static void supplierWrite(Supplier supplier) throws IOException {
-        FileWriter file = new FileWriter("file/SUPPLIER.txt",true);
-        PrintWriter outputFile = new PrintWriter(file);
-        String printText = String.format("%s\t%s\t%s\t%s\t%s\t%s",supplier.getSuppID(),supplier.getSuppName(),supplier.getContractName(),supplier.getAddress(),supplier.getPhone(),supplier.getEmail());
-        outputFile.println(printText);
-        outputFile.close();
-    }
 
 }
