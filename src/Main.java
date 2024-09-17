@@ -185,7 +185,9 @@ public class Main {
             whileinside:
             while (true){
                 System.out.println("1. Show Name By ASC");
-                System.out.println("2. Show Price By DESC");
+                System.out.println("2. Show Name By DESC");
+                System.out.println("3. Show Price By ASC");
+                System.out.println("4. Show Price By DESC");
                 System.out.print("Press Q to Exit : ");
                 String command = input.next();
                 switch (command){
@@ -193,6 +195,12 @@ public class Main {
                         Sort.sortByNameASC(productShow);
                         break whileinside;
                     case "2":
+                        Sort.sortByNameDESC(productShow);
+                        break whileinside;
+                    case "3":
+                        Sort.sortByPriceASC(productShow);
+                        break whileinside;
+                    case "4":
                         Sort.sortByPriceDESC(productShow);
                         break whileinside;
                     case "Q","q" :
