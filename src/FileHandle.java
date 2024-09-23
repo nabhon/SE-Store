@@ -106,4 +106,14 @@ public class FileHandle {
         outputFile.println(printText);
         outputFile.close();
     }
+
+    public static void saveSupplier(ArrayList<Supplier> supplierList) throws IOException {
+        FileWriter file = new FileWriter("file/SUPPLIER.txt");
+        PrintWriter outputFile = new PrintWriter(file);
+        for (Supplier S:supplierList) {
+            String printText = String.format("%s\t%s\t%s\t%s\t%s\t%s",S.getSuppID(),S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
+            outputFile.println(printText);
+        }
+        outputFile.close();
+    }
 }

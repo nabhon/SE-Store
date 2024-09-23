@@ -80,9 +80,10 @@ public class Main {
                 System.out.println("====================");
                 System.out.println("1. Show Supplier");
                 System.out.println("2. Add Supplier");
-                System.out.println("3. Logout");
+                System.out.println("3. Edit Supplier");
+                System.out.println("4. Logout");
                 System.out.println("====================");
-                System.out.print("Select (1-3) : ");
+                System.out.print("Select (1-4) : ");
                 try {
                     int command = input.nextInt();
                     if (command==1){
@@ -90,6 +91,9 @@ public class Main {
                     } else if(command==2){
                         FileHandle.addSupplier(supplierList);
                     } else if (command==3) {
+                        editSupplierList(supplierList);
+                        FileHandle.saveSupplier(supplierList);
+                    } else if (command==4){
                         break;
                     } else {
                         throw new InputMismatchException();
@@ -210,6 +214,80 @@ public class Main {
                         break;
                 }
             }
+        }
+    }
+
+    //Method แสดง Supplier สำหรับเลือกแก้ Supplier
+    public static void editSupplierList(ArrayList<Supplier> supplierList){
+        Scanner input = new Scanner(System.in);
+        whileyaya:
+        while (true) {
+            System.out.println("===== SE STORE's Supplier =====");
+            System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n","#","SupplierName","ContactName","Address","Phone","Email");
+            int number = 1;
+            for (Supplier S:supplierList) {
+                System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n",number++,S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
+            }
+            System.out.println("====================");
+            while (true) {
+                System.out.println("Type Supplier Number You want or Press Q to Exit");
+                System.out.print("Select : ");
+                String command = input.nextLine();
+                if (command.equalsIgnoreCase("Q")) {
+                    break whileyaya;
+                } else if (isDigit(command)&&findID(command,supplierList.size())) {
+                    editSupplier(supplierList.get(Integer.parseInt(command)-1));
+                    break whileyaya;
+                } else {
+                    System.out.println("Input Incorrect");
+                }
+            }
+        }
+    }
+
+    //Method แก้ Supplier จาก editSupplierList
+    public static void editSupplier(Supplier supplier){
+        Scanner input = new Scanner(System.in);
+        boolean valid = true;
+        System.out.println("==== Edit info of "+supplier.getSuppName()+" ====");
+        System.out.println("Type new info or Hyphen (-) for none edit.");
+        System.out.print("Supplier Name : ");
+        String name = input.nextLine();
+        System.out.print("Contact Name : ");
+        String contractName = input.nextLine();
+        System.out.print("Phone : ");
+        String phone = input.nextLine();
+        System.out.print("Email : ");
+        String email = input.nextLine();
+        if (name.length()<=2&&!name.equals("-")){
+            valid = false;
+        }
+        if (contractName.length()<=4&&!contractName.equals("-")){
+            valid = false;
+        }
+        if (phone.length()!=10&&!phone.equals("-")){
+            valid = false;
+        }
+        if ((email.length()<=2||!email.contains("@"))&&!email.equals("-")){
+            valid = false;
+        }
+        if (valid){
+            if (!name.equals("-")){
+                supplier.setSuppName(name);
+            }
+            if (!contractName.equals("-")){
+                supplier.setContractName(contractName);
+            }
+            if (!phone.equals("-")){
+                String phoneNum = phone.substring(0,3)+"-"+phone.substring(3,6)+"-"+phone.substring(6,10);
+                supplier.setPhone(phoneNum);
+            }
+            if (!email.equals("-")){
+                supplier.setEmail(email);
+            }
+            System.out.println("Success - Supplier has been updated!");
+        } else {
+            System.out.println("Failed - Please try again!");
         }
     }
 
