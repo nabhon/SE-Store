@@ -1,4 +1,5 @@
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -81,9 +82,10 @@ public class Main {
                 System.out.println("1. Show Supplier");
                 System.out.println("2. Add Supplier");
                 System.out.println("3. Edit Supplier");
-                System.out.println("4. Logout");
+                System.out.println("4. Edit Products");
+                System.out.println("5. Logout");
                 System.out.println("====================");
-                System.out.print("Select (1-4) : ");
+                System.out.print("Select (1-5) : ");
                 try {
                     int command = input.nextInt();
                     if (command==1){
@@ -93,7 +95,9 @@ public class Main {
                     } else if (command==3) {
                         editSupplierList(supplierList);
                         FileHandle.saveSupplier(supplierList);
-                    } else if (command==4){
+                    } else if (command==4) {
+                        editProduct(productList);
+                    } else if (command==5){
                         break;
                     } else {
                         throw new InputMismatchException();
@@ -217,6 +221,85 @@ public class Main {
         }
     }
 
+    public static boolean isDouble(String digit){
+        try {
+            double check = Double.parseDouble(digit);
+            return true;
+        }catch (Exception E){
+            return false;
+        }
+    }
+
+    public static void editProduct(ArrayList<Product> productList) throws IOException {
+        Scanner input = new Scanner(System.in);
+        whileyaya:
+        while (true) {
+            System.out.println("===== SE STORE's Products =====");
+            System.out.printf("%-10s%-20s%-25s%-10s\n","#","Name","Price(฿)","Quantity");
+            int number = 1;
+            for (Product p : productList) {
+                String productNumber = String.valueOf(number++);
+                String name = p.getName();
+                String price;
+                int quantity = p.getQuality();
+                price = String.format("%.2f",p.getPrice()*34);
+                System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
+            }
+            System.out.println("====================");
+            while (true) {
+                System.out.println("Type Product Number, You want to edit or Press Q to Exit");
+                System.out.print("Select : ");
+                String command = input.nextLine();
+                if (command.equalsIgnoreCase("Q")) {
+                    break whileyaya;
+                } else if (isDigit(command)&&(Integer.parseInt(command)>0&&Integer.parseInt(command)<=productList.size()-1)) {
+                    Product editProduct = productList.get(Integer.parseInt(command)-1);
+                    boolean valid = true;
+                    String name,price,format,digit;
+                    System.out.println("==== Edit info of "+editProduct.getName()+" ====");
+                    System.out.println("Type new info or Hyphen (-) for none edit.");
+                    System.out.print("Name : ");
+                    name = input.nextLine();
+                    System.out.print("Price ($ or ฿) : ");
+                    price = input.nextLine();
+                    if (!price.equals("-")){
+                        format = price.substring(0,1);
+                        digit = price.substring(1);
+                        if (format.equals("$")||format.equals("฿")){
+                        } else {
+                            valid = false;
+                        }
+                        if (!isDouble(digit)){
+                            valid = false;
+                        }
+                        if (valid){
+                            if (format.equals("$")){
+                                double editPrice = Double.parseDouble(digit);
+                                digit = String.format("%.2f",editPrice);
+                                editProduct.setPrice(Double.parseDouble(digit));
+                            } else {
+                                double editPrice = Double.parseDouble(digit)/34;
+                                digit = String.format("%.2f",editPrice);
+                                editProduct.setPrice(Double.parseDouble(digit));
+                            }
+                        } else {
+                            System.out.println("Error! - Your Information are Incorrect!");
+                            break whileyaya;
+                        }
+                    }
+                    if (!name.equals("-")){
+                        editProduct.setName(name);
+                    }
+                    System.out.println("Success - "+editProduct.getName()+" has been updated!");
+                    FileHandle.saveProduct(productList);
+                    break whileyaya;
+                } else {
+                    System.out.println("Input Incorrect");
+                }
+            }
+        }
+    }
+
     //Method แสดง Supplier สำหรับเลือกแก้ Supplier
     public static void editSupplierList(ArrayList<Supplier> supplierList){
         Scanner input = new Scanner(System.in);
@@ -296,6 +379,5 @@ public class Main {
         int checker = Integer.parseInt(id);
         return checker <= supplierListSize && checker > 0;
     }
-
 
 }

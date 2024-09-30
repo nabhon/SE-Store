@@ -116,4 +116,15 @@ public class FileHandle {
         }
         outputFile.close();
     }
+
+    public static void saveProduct(ArrayList<Product> productList) throws IOException {
+        FileWriter file = new FileWriter("file/PRODUCT.txt");
+        PrintWriter outputFile = new PrintWriter(file);
+        for (Product P:productList) {
+            String price = String.format("$%.2f",P.getPrice());
+            String printText = String.format("%d\t%s\t%s\t%d\t%d",P.getId(),P.getName(),price,P.getQuality(),P.getSuppID());
+            outputFile.println(printText);
+        }
+        outputFile.close();
+    }
 }
