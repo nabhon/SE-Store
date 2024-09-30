@@ -1,9 +1,10 @@
 import java.io.*;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 /*
-Programe name : SE Store #4
+Program name : SE Store #4
 Student ID : 66160351
 Student name : Nabhon Karladee
 Date : 14/8/24
@@ -17,7 +18,7 @@ public class Main {
         ArrayList<Product> productList = new ArrayList<>();
         ArrayList<Supplier> supplierList = new ArrayList<>();
         ArrayList<Member> memberList = new ArrayList<>();
-        fileRead(productList,supplierList,memberList);
+        FileHandle.fileRead(productList,supplierList,memberList);
         mainWhile:
         while (true){
             menu();
@@ -25,7 +26,7 @@ public class Main {
                 int command = input.nextInt();
                 switch (command){
                     case 1:
-                        loginMenu(memberList,productList,supplierList);
+                        LoginMenu.loginMenu(memberList,productList,supplierList);
                         break;
                     case 2:
                         System.out.println("===== SE STORE =====\nThank you for using our service :3");
@@ -61,67 +62,6 @@ public class Main {
     }
 
     //Method for login menu
-    public static void loginMenu(ArrayList<Member> memberList,ArrayList<Product> productList,ArrayList<Supplier> supplierList) {
-        Scanner input = new Scanner(System.in);
-        int loginFail = 0;
-        while (true) {
-            System.out.println("===== Login =====");
-            System.out.print("Email : ");
-            String email = input.next();
-            System.out.print("Password : ");
-            String password = input.next();
-            int loginID = findMember(memberList, email, password);
-            if (loginID == -1) {
-                loginFail++;
-                System.out.println("Error! - Email or Password is Incorrect ("+loginFail+")");
-                if (loginFail==3){
-                    System.out.println("Sorry, Please try again later :(");
-                    break;
-                }
-            } else {
-                Member currentLogin = getMember(loginID,memberList);
-                if (checkIDValid(memberList,loginID)){
-                    getUserData(currentLogin,productList,supplierList);
-                } else {
-                    System.out.println("Error! - Your Account are Expired!");
-                }
-                break;
-            }
-        }
-    }
-
-    //Check if account in expired or not
-    public static boolean checkIDValid(ArrayList<Member> memberList,int loginID){
-        for (Member m: memberList) {
-            if (m.getMemberID()==loginID){
-                int checkIndex = Integer.parseInt(m.getPassword().substring(2,3));
-                return checkIndex == 1;
-            }
-        }
-        return false;
-    }
-
-    //Method to find loginID of a member
-    public static int findMember(ArrayList<Member> memberList,String email,String password){
-        for (Member m:memberList) {
-            String checkEmail = m.getEmail();
-            String checkPassword = m.getPassword().substring(9,11)+m.getPassword().substring(13,17);
-            if (email.equals(checkEmail)&&password.equals(checkPassword)){
-                return m.getMemberID();
-            }
-        }
-        return -1;
-    }
-
-    //Get a Member from memberList using loginID to find
-    public static Member getMember(int loginID,ArrayList<Member> memberList){
-        for (Member m:memberList) {
-            if (m.getMemberID()==loginID){
-                return m;
-            }
-        }
-        return new Member();
-    }
 
     //Show user data and menu
     public static void getUserData(Member currentLogin,ArrayList<Product> productList,ArrayList<Supplier> supplierList){
@@ -141,16 +81,22 @@ public class Main {
                 System.out.println("====================");
                 System.out.println("1. Show Supplier");
                 System.out.println("2. Add Supplier");
-                System.out.println("3. Logout");
+                System.out.println("3. Edit Supplier");
+                System.out.println("4. Edit Products");
+                System.out.println("5. Logout");
                 System.out.println("====================");
-                System.out.print("Select (1-3) : ");
+                System.out.print("Select (1-5) : ");
                 try {
                     int command = input.nextInt();
                     if (command==1){
-                        showSupplier(productList,supplierList);
+                        showSupplier(productList,supplierList,currentLogin);
                     } else if(command==2){
-                        addSupplier(supplierList);
+                        FileHandle.addSupplier(supplierList);
                     } else if (command==3) {
+                        editSupplierList(supplierList);
+                    } else if (command==4) {
+                        editProduct(productList);
+                    } else if (command==5){
                         break;
                     } else {
                         throw new InputMismatchException();
@@ -170,7 +116,7 @@ public class Main {
                 try {
                     int command = input.nextInt();
                     if (command==1){
-                        showSupplier(productList,supplierList);
+                        showSupplier(productList,supplierList,currentLogin);
                     } else if(command==2){
                         break;
                     } else {
@@ -186,7 +132,7 @@ public class Main {
     }
 
     //Print supplier from supplierList
-    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList) {
+    public static void showSupplier(ArrayList<Product> productList,ArrayList<Supplier> supplierList,Member currentLogin) {
         Scanner input = new Scanner(System.in);
         whileyaya:
         while (true) {
@@ -204,7 +150,7 @@ public class Main {
                 if (command.equalsIgnoreCase("Q")) {
                     break whileyaya;
                 } else if (isDigit(command)&&findID(command,supplierList.size())) {
-                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1));
+                    showProduct(productList,supplierList.get(Integer.parseInt(command)-1),currentLogin);
                     break;
                 } else {
                     System.out.println("Input Incorrect");
@@ -214,33 +160,215 @@ public class Main {
     }
 
     //Print product from productList that has ID equal to supplier ID
-    public static void showProduct(ArrayList<Product> productList,Supplier selectSupplier) {
+    public static void showProduct(ArrayList<Product> productList,Supplier selectSupplier,Member currentLogin) {
         Scanner input = new Scanner(System.in);
+        ArrayList<Product> productShow = new ArrayList<>();
         int suppID = Integer.parseInt(selectSupplier.getSuppID());
-        System.out.println("===== "+selectSupplier.getSuppName()+" =====");
-        System.out.printf("%-10s%-20s%-15s%-10s\n","#","Name","Price(฿)","Quantity");
-        int number = 1;
         for (Product p: productList) {
             if (suppID==p.getSuppID()) {
-                String productNumber = String.valueOf(number++);
-                String name = p.getName();
-                String price = String.format("%.2f", p.getPrice()*34);
-                int quantity = p.getQuality();
-                System.out.printf("%-10s%-20s%-15s%-10d\n", productNumber, name, price, quantity);
+                productShow.add(p);
             }
         }
-        System.out.println("===========================");
         whilebreak:
         while (true){
-            System.out.print("Press Q to Exit : ");
-            String command = input.next();
-            switch (command){
-                case "Q","q" :
-                    break whilebreak;
-                default :
-                    System.out.println("Input Incorrect");
-                    break;
+            System.out.println("===== "+selectSupplier.getSuppName()+" =====");
+            System.out.printf("%-10s%-20s%-25s%-10s\n","#","Name","Price(฿)","Quantity");
+            int number = 1;
+            for (Product p : productShow) {
+                String productNumber = String.valueOf(number++);
+                String name = p.getName();
+                String price;
+                int quantity = p.getQuality();
+                if (currentLogin.getDiscount()!=1){
+                    price = String.format("(%.2f)",p.getPrice()*34);
+                    String discountPrice = String.format("%.2f",p.getPrice()*34*currentLogin.getDiscount());
+                    System.out.printf("%-10s%-20s%-7s%-10s%8s%-10d\n", productNumber, name,discountPrice,price,"", quantity);
+                } else {
+                    price = String.format("%.2f",p.getPrice()*34);
+                    System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
+                }
             }
+            System.out.println("===========================");
+            whileinside:
+            while (true){
+                System.out.println("1. Show Name By ASC");
+                System.out.println("2. Show Name By DESC");
+                System.out.println("3. Show Price By ASC");
+                System.out.println("4. Show Price By DESC");
+                System.out.print("Press Q to Exit : ");
+                String command = input.next();
+                switch (command){
+                    case "1":
+                        Sort.sortByNameASC(productShow);
+                        break whileinside;
+                    case "2":
+                        Sort.sortByNameDESC(productShow);
+                        break whileinside;
+                    case "3":
+                        Sort.sortByPriceASC(productShow);
+                        break whileinside;
+                    case "4":
+                        Sort.sortByPriceDESC(productShow);
+                        break whileinside;
+                    case "Q","q" :
+                        break whilebreak;
+                    default :
+                        System.out.println("Input Incorrect");
+                        break;
+                }
+            }
+        }
+    }
+
+    public static boolean isDouble(String digit){
+        try {
+            double check = Double.parseDouble(digit);
+            return true;
+        }catch (Exception E){
+            return false;
+        }
+    }
+
+    public static void editProduct(ArrayList<Product> productList) throws IOException {
+        Scanner input = new Scanner(System.in);
+        whileyaya:
+        while (true) {
+            System.out.println("===== SE STORE's Products =====");
+            System.out.printf("%-10s%-20s%-25s%-10s\n","#","Name","Price(฿)","Quantity");
+            int number = 1;
+            for (Product p : productList) {
+                String productNumber = String.valueOf(number++);
+                String name = p.getName();
+                String price;
+                int quantity = p.getQuality();
+                price = String.format("%.2f",p.getPrice()*34);
+                System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
+            }
+            System.out.println("====================");
+            while (true) {
+                System.out.println("Type Product Number, You want to edit or Press Q to Exit");
+                System.out.print("Select : ");
+                String command = input.nextLine();
+                if (command.equalsIgnoreCase("Q")) {
+                    break whileyaya;
+                } else if (isDigit(command)&&(Integer.parseInt(command)>0&&Integer.parseInt(command)<=productList.size()-1)) {
+                    Product editProduct = productList.get(Integer.parseInt(command)-1);
+                    boolean valid = true;
+                    String name,price,format,digit;
+                    System.out.println("==== Edit info of "+editProduct.getName()+" ====");
+                    System.out.println("Type new info or Hyphen (-) for none edit.");
+                    System.out.print("Name : ");
+                    name = input.nextLine();
+                    System.out.print("Price ($ or ฿) : ");
+                    price = input.nextLine();
+                    if (!price.equals("-")){
+                        format = price.substring(0,1);
+                        digit = price.substring(1);
+                        if (!format.equals("$")&&!format.equals("฿")){
+                            valid = false;
+                        }
+                        if (!isDouble(digit)){
+                            valid = false;
+                        }
+                        if (valid){
+                            double editPrice;
+                            if (format.equals("$")){
+                                editPrice = Double.parseDouble(digit);
+                            } else {
+                                editPrice = Double.parseDouble(digit) / 34;
+                            }
+                            digit = String.format("%.2f",editPrice);
+                            editProduct.setPrice(Double.parseDouble(digit));
+                        } else {
+                            System.out.println("Error! - Your Information are Incorrect!");
+                            break whileyaya;
+                        }
+                    }
+                    if (!name.equals("-")){
+                        editProduct.setName(name);
+                    }
+                    System.out.println("Success - "+editProduct.getName()+" has been updated!");
+                    FileHandle.saveProduct(productList);
+                    break whileyaya;
+                } else {
+                    System.out.println("Input Incorrect");
+                }
+            }
+        }
+    }
+
+    //Method แสดง Supplier สำหรับเลือกแก้ Supplier
+    public static void editSupplierList(ArrayList<Supplier> supplierList) throws IOException {
+        Scanner input = new Scanner(System.in);
+        whileyaya:
+        while (true) {
+            System.out.println("===== SE STORE's Supplier =====");
+            System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n","#","SupplierName","ContactName","Address","Phone","Email");
+            int number = 1;
+            for (Supplier S:supplierList) {
+                System.out.printf("%-10s%-25s%-20s%-30s%-30s%-20s\n",number++,S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
+            }
+            System.out.println("====================");
+            while (true) {
+                System.out.println("Type Supplier Number You want or Press Q to Exit");
+                System.out.print("Select : ");
+                String command = input.nextLine();
+                if (command.equalsIgnoreCase("Q")) {
+                    break whileyaya;
+                } else if (isDigit(command)&&findID(command,supplierList.size())) {
+                    editSupplier(supplierList.get(Integer.parseInt(command)-1));
+                    FileHandle.saveSupplier(supplierList);
+                    break whileyaya;
+                } else {
+                    System.out.println("Input Incorrect");
+                }
+            }
+        }
+    }
+
+    //Method แก้ Supplier จาก editSupplierList
+    public static void editSupplier(Supplier supplier){
+        Scanner input = new Scanner(System.in);
+        boolean valid = true;
+        System.out.println("==== Edit info of "+supplier.getSuppName()+" ====");
+        System.out.println("Type new info or Hyphen (-) for none edit.");
+        System.out.print("Supplier Name : ");
+        String name = input.nextLine();
+        System.out.print("Contact Name : ");
+        String contractName = input.nextLine();
+        System.out.print("Phone : ");
+        String phone = input.nextLine();
+        System.out.print("Email : ");
+        String email = input.nextLine();
+        if (name.length()<=2&&!name.equals("-")){
+            valid = false;
+        }
+        if (contractName.length()<=4&&!contractName.equals("-")){
+            valid = false;
+        }
+        if (phone.length()!=10&&!phone.equals("-")){
+            valid = false;
+        }
+        if ((email.length()<=2||!email.contains("@"))&&!email.equals("-")){
+            valid = false;
+        }
+        if (valid){
+            if (!name.equals("-")){
+                supplier.setSuppName(name);
+            }
+            if (!contractName.equals("-")){
+                supplier.setContractName(contractName);
+            }
+            if (!phone.equals("-")){
+                String phoneNum = phone.substring(0,3)+"-"+phone.substring(3,6)+"-"+phone.substring(6,10);
+                supplier.setPhone(phoneNum);
+            }
+            if (!email.equals("-")){
+                supplier.setEmail(email);
+            }
+            System.out.println("Success - Supplier has been updated!");
+        } else {
+            System.out.println("Failed - Please try again!");
         }
     }
 
@@ -248,110 +376,6 @@ public class Main {
     public static boolean findID(String id,int supplierListSize){
         int checker = Integer.parseInt(id);
         return checker <= supplierListSize && checker > 0;
-    }
-
-    //Add new supplier to the file
-    public static void addSupplier(ArrayList<Supplier> supplierList) throws IOException {
-        Scanner input = new Scanner(System.in);
-        boolean checkValid = true;
-        System.out.println("=====Add Supplier=====");
-        System.out.print("Supplier Name : ");
-        String name = input.nextLine();
-        System.out.print("Contract Name : ");
-        String contractName = input.nextLine();
-        System.out.print("Building Number : ");
-        String buildingNum = input.nextLine();
-        System.out.print("Street Name : ");
-        String streetName = input.nextLine();
-        System.out.print("City : ");
-        String cityName = input.nextLine();
-        System.out.print("Phone : ");
-        String phoneNum = input.nextLine();
-        System.out.print("Email : ");
-        String email = input.nextLine();
-        if (name.length()<=2){
-            checkValid = false;
-        }
-        if (contractName.length()<=4){
-            checkValid = false;
-        }
-        if (buildingNum.length()==0){
-            checkValid = false;
-        }
-        if (streetName.length()<=2){
-            checkValid = false;
-        }
-        if (cityName.length()<=2){
-            checkValid = false;
-        }
-        if (phoneNum.length()!=10){
-            checkValid = false;
-        }
-        if (email.length()<=2||!email.contains("@")){
-            checkValid = false;
-        }
-        if (checkValid){
-            String phone = phoneNum.substring(0,3)+"-"+phoneNum.substring(3,6)+"-"+phoneNum.substring(6,10);
-            String address = buildingNum+" "+streetName+", "+cityName;
-            Supplier newSupplier = new Supplier(String.valueOf(supplierList.size()+1),name,contractName,address,phone,email);
-            supplierList.add(newSupplier);
-            supplierWrite(newSupplier);
-            System.out.println("Success - New Supplier has been created!");
-        } else {
-            System.out.println("Error! - Your Information are Incorrect!");
-        }
-        System.out.println("======================");
-    }
-
-    //อ่านไฟล์ Text ข้อมูล แล้วเก็บค่าลงใน Array productList
-    public static void fileRead(ArrayList<Product> productList,ArrayList<Supplier> supplierList,ArrayList<Member> memberList) throws FileNotFoundException {
-        File productInput = new File("file/PRODUCT.txt");
-        Scanner fileReader = new Scanner(productInput);
-        while (fileReader.hasNextLine()){
-            String regex = "\t+";
-            String[] readList = fileReader.nextLine().split(regex);
-            int id = Integer.parseInt(readList[0]);
-            String name = readList[1];
-            double price = Double.parseDouble(readList[2].replace("$",""));
-            int quality = Integer.parseInt(readList[3]);
-            int suppID = Integer.parseInt(readList[4]);
-            productList.add(new Product(id,name,price,quality,suppID));
-        }
-        File suppInput = new File("file/SUPPLIER.txt");
-        fileReader = new Scanner(suppInput);
-        while (fileReader.hasNextLine()){
-            String[] readList = fileReader.nextLine().split("\t+");
-            String id = readList[0];
-            String name = readList[1];
-            String contract = readList[2];
-            String address = readList[3];
-            String phone = readList[4];
-            String email = readList[5];
-            supplierList.add(new Supplier(id,name,contract,address,phone,email));
-        }
-        File memberInput = new File("file/MEMBER.txt");
-        fileReader = new Scanner(memberInput);
-        while (fileReader.hasNextLine()){
-            String regex = "\t+";
-            String[] readList = fileReader.nextLine().split(regex);
-            int memberID = Integer.parseInt(readList[0]);
-            String name = readList[1];
-            String lastName = readList[2];
-            String email = readList[3];
-            String password = readList[4];
-            String phone = readList[5];
-            double point = Double.parseDouble(readList[6]);
-            memberList.add(new Member(memberID,name,lastName,email,password,phone,point));
-        }
-    }
-
-    //Method to Write new supplier to Supplier file as it get create
-    public static void supplierWrite(Supplier supplier) throws IOException {
-        FileWriter file = new FileWriter("file/SUPPLIER.txt",true);
-        PrintWriter outputFile = new PrintWriter(file);
-        String printText = String.format("%s\t%s\t%s\t%s\t%s\t%s",supplier.getSuppID(),supplier.getSuppName(),supplier.getContractName(),supplier.getAddress(),supplier.getPhone(),supplier.getEmail());
-        outputFile.println(printText);
-        outputFile.close();
     }
 
 }

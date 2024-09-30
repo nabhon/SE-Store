@@ -20,6 +20,10 @@ public class Product {
         this.suppID = suppID;
     }
 
+    public int findValue(){
+        return name.charAt(0);
+    }
+
     public int getId() {
         return id;
     }
@@ -40,7 +44,7 @@ public class Product {
         return price;
     }
 
-    public void setPrice(int price) {
+    public void setPrice(double price) {
         this.price = price;
     }
 
