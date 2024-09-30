@@ -94,7 +94,6 @@ public class Main {
                         FileHandle.addSupplier(supplierList);
                     } else if (command==3) {
                         editSupplierList(supplierList);
-                        FileHandle.saveSupplier(supplierList);
                     } else if (command==4) {
                         editProduct(productList);
                     } else if (command==5){
@@ -265,23 +264,21 @@ public class Main {
                     if (!price.equals("-")){
                         format = price.substring(0,1);
                         digit = price.substring(1);
-                        if (format.equals("$")||format.equals("฿")){
-                        } else {
+                        if (!format.equals("$")&&!format.equals("฿")){
                             valid = false;
                         }
                         if (!isDouble(digit)){
                             valid = false;
                         }
                         if (valid){
+                            double editPrice;
                             if (format.equals("$")){
-                                double editPrice = Double.parseDouble(digit);
-                                digit = String.format("%.2f",editPrice);
-                                editProduct.setPrice(Double.parseDouble(digit));
+                                editPrice = Double.parseDouble(digit);
                             } else {
-                                double editPrice = Double.parseDouble(digit)/34;
-                                digit = String.format("%.2f",editPrice);
-                                editProduct.setPrice(Double.parseDouble(digit));
+                                editPrice = Double.parseDouble(digit) / 34;
                             }
+                            digit = String.format("%.2f",editPrice);
+                            editProduct.setPrice(Double.parseDouble(digit));
                         } else {
                             System.out.println("Error! - Your Information are Incorrect!");
                             break whileyaya;
@@ -301,7 +298,7 @@ public class Main {
     }
 
     //Method แสดง Supplier สำหรับเลือกแก้ Supplier
-    public static void editSupplierList(ArrayList<Supplier> supplierList){
+    public static void editSupplierList(ArrayList<Supplier> supplierList) throws IOException {
         Scanner input = new Scanner(System.in);
         whileyaya:
         while (true) {
@@ -320,6 +317,7 @@ public class Main {
                     break whileyaya;
                 } else if (isDigit(command)&&findID(command,supplierList.size())) {
                     editSupplier(supplierList.get(Integer.parseInt(command)-1));
+                    FileHandle.saveSupplier(supplierList);
                     break whileyaya;
                 } else {
                     System.out.println("Input Incorrect");
