@@ -1,5 +1,4 @@
 import java.io.*;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
@@ -222,7 +221,7 @@ public class Main {
 
     public static boolean isDouble(String digit){
         try {
-            double check = Double.parseDouble(digit);
+            Double.parseDouble(digit);
             return true;
         }catch (Exception E){
             return false;
