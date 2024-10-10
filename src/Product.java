@@ -57,4 +57,10 @@ public class Product {
     }public int getSuppID(){
         return this.suppID;
     }
+
+    @Override
+    public String toString() {
+        String price = String.format("$%.2f",getPrice());
+        return String.format("%d\t%s\t%s\t%d\t%d",getId(),getName(),price,getQuality(),getSuppID());
+    }
 }

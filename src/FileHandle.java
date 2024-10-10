@@ -48,7 +48,7 @@ public class FileHandle {
             String address = buildingNum+" "+streetName+", "+cityName;
             Supplier newSupplier = new Supplier(String.valueOf(supplierList.size()+1),name,contractName,address,phone,email);
             supplierList.add(newSupplier);
-            supplierWrite(newSupplier);
+            saveSupplier(supplierList);
             System.out.println("Success - New Supplier has been created!");
         } else {
             System.out.println("Error! - Your Information are Incorrect!");
@@ -98,21 +98,11 @@ public class FileHandle {
         }
     }
 
-    //Method to Write new supplier to Supplier file as it get create
-    public static void supplierWrite(Supplier supplier) throws IOException {
-        FileWriter file = new FileWriter("file/SUPPLIER.txt",true);
-        PrintWriter outputFile = new PrintWriter(file);
-        String printText = String.format("%s\t%s\t%s\t%s\t%s\t%s",supplier.getSuppID(),supplier.getSuppName(),supplier.getContractName(),supplier.getAddress(),supplier.getPhone(),supplier.getEmail());
-        outputFile.println(printText);
-        outputFile.close();
-    }
-
     public static void saveSupplier(ArrayList<Supplier> supplierList) throws IOException {
         FileWriter file = new FileWriter("file/SUPPLIER.txt");
         PrintWriter outputFile = new PrintWriter(file);
         for (Supplier S:supplierList) {
-            String printText = String.format("%s\t%s\t%s\t%s\t%s\t%s",S.getSuppID(),S.getSuppName(),S.getContractName(),S.getAddress(),S.getPhone(),S.getEmail());
-            outputFile.println(printText);
+            outputFile.println(S);
         }
         outputFile.close();
     }
@@ -121,9 +111,17 @@ public class FileHandle {
         FileWriter file = new FileWriter("file/PRODUCT.txt");
         PrintWriter outputFile = new PrintWriter(file);
         for (Product P:productList) {
-            String price = String.format("$%.2f",P.getPrice());
-            String printText = String.format("%d\t%s\t%s\t%d\t%d",P.getId(),P.getName(),price,P.getQuality(),P.getSuppID());
-            outputFile.println(printText);
+            outputFile.println(P);
+        }
+        outputFile.close();
+    }
+
+    public static void saveOrder(ArrayList<Product> orderList,int memberID) throws IOException {
+        FileWriter file = new FileWriter("file/CART.txt");
+        PrintWriter outputFile = new PrintWriter(file);
+        for (Product O:orderList) {
+            String print = String.format("%d\t%d\t%d",memberID,O.getId(),O.getQuality());
+            outputFile.println(print);
         }
         outputFile.close();
     }

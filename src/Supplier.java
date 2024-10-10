@@ -62,4 +62,9 @@ public class Supplier {
     public String getEmail() {
         return email;
     }
+
+    @Override
+    public String toString() {
+        return String.format("%s\t%s\t%s\t%s\t%s\t%s",getSuppID(),getSuppName(),getContractName(),getAddress(),getPhone(),getEmail());
+    }
 }

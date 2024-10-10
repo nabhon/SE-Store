@@ -65,17 +65,19 @@ public class Main {
     //Show user data and menu
     public static void getUserData(Member currentLogin,ArrayList<Product> productList,ArrayList<Supplier> supplierList){
         Scanner input = new Scanner(System.in);
+        ArrayList<Product> orderList = new ArrayList<>();
         String displayName = currentLogin.getMemberLastName().substring(0,1).toUpperCase()+". "+currentLogin.getMemberName()+" ("+currentLogin.getMemberStatus()+")";
         int indexOfAt = currentLogin.getEmail().indexOf("@");
         String email = currentLogin.getEmail().substring(0,2)+"***"+currentLogin.getEmail().substring(indexOfAt,indexOfAt+3)+"***";
         String phone = currentLogin.getPhone().substring(0,3)+"-"+currentLogin.getPhone().substring(3,6)+"-"+currentLogin.getPhone().substring(6,10);
         String point = String.format("%.0f",currentLogin.getMemberPoint());
-        System.out.println("===== SE STORE =====");
-        System.out.println("Hello, "+displayName);
-        System.out.println("Email : "+email);
-        System.out.println("Phone : "+phone);
-        System.out.println("You have "+point+" Point");
+        whilestop:
         while (true) {
+            System.out.println("===== SE STORE =====");
+            System.out.println("Hello, "+displayName);
+            System.out.println("Email : "+email);
+            System.out.println("Phone : "+phone);
+            System.out.println("You have "+point+" Point");
             if (currentLogin.isStaff()) {
                 System.out.println("====================");
                 System.out.println("1. Show Supplier");
@@ -87,18 +89,23 @@ public class Main {
                 System.out.print("Select (1-5) : ");
                 try {
                     int command = input.nextInt();
-                    if (command==1){
-                        showSupplier(productList,supplierList,currentLogin);
-                    } else if(command==2){
-                        FileHandle.addSupplier(supplierList);
-                    } else if (command==3) {
-                        editSupplierList(supplierList);
-                    } else if (command==4) {
-                        editProduct(productList);
-                    } else if (command==5){
-                        break;
-                    } else {
-                        throw new InputMismatchException();
+                    switch (command){
+                        case 1:
+                            showSupplier(productList,supplierList,currentLogin);
+                            break;
+                        case 2:
+                            FileHandle.addSupplier(supplierList);
+                            break;
+                        case 3:
+                            editSupplierList(supplierList);
+                            break;
+                        case 4:
+                            editProduct(productList);
+                            break;
+                        case 5:
+                            break whilestop;
+                        default:
+                            throw new InputMismatchException();
                     }
                 } catch (InputMismatchException E){
                     System.out.println("Input incorrect");
@@ -109,25 +116,176 @@ public class Main {
             } else {
                 System.out.println("====================");
                 System.out.println("1. Show Supplier");
-                System.out.println("2. Logout");
+                System.out.println("2. Order Product");
+                System.out.println("3. Logout");
                 System.out.println("====================");
                 System.out.print("Select (1-2) : ");
                 try {
                     int command = input.nextInt();
-                    if (command==1){
-                        showSupplier(productList,supplierList,currentLogin);
-                    } else if(command==2){
-                        break;
-                    } else {
-                        throw new InputMismatchException();
+                    switch (command){
+                        case 1:
+                            showSupplier(productList,supplierList,currentLogin);
+                            break;
+                        case 2:
+                            orderProduct(productList,orderList,currentLogin.getMemberID());
+                            break;
+                        case 3:
+                            break whilestop;
+                        default:
+                            throw new InputMismatchException();
                     }
-                } catch (InputMismatchException E){
+                } catch (InputMismatchException | IOException E){
                     System.out.println("Input incorrect");
                     input.nextLine();
                 }
             }
 
         }
+    }
+
+    public static void orderProduct(ArrayList<Product> productList,ArrayList<Product> orderList,int memberID) throws IOException {
+        Scanner input = new Scanner(System.in);
+        whileyaya:
+        while (true) {
+            System.out.println("===== SE STORE's Products =====");
+            System.out.printf("%-10s%-20s%-25s%-10s\n", "#", "Name", "Price(฿)", "Quantity");
+            int number = 1;
+            for (Product p : productList) {
+                String productNumber = String.valueOf(number++);
+                String name = p.getName();
+                String price;
+                int quantity = p.getQuality();
+                price = String.format("%.2f", p.getPrice() * 34);
+                System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
+            }
+            System.out.println("====================");
+            while (true) {
+                System.out.println("Enter the product number followed by the quantity.");
+                System.out.println("1. How to Order");
+                System.out.println("2. List Products");
+                System.out.println("3. Show Cart");
+                System.out.println("Q. Exit");
+                System.out.print("Enter : ");
+                String command = input.nextLine();
+                switch (command){
+                    case "Q","q":
+                        break whileyaya;
+                    case "1":
+                        System.out.println("""
+                                How to Order:
+                                To Add Product:
+                                \t\tEnter the product number followed by the quantity.
+                                \t\tExample: 1 50 (Adds 50 chips)
+                                To Adjust Quantity:
+                                \t\t+ to add more items: 1 +50 (Adds 50 more chips)
+                                \t\t- to reduce items: 1 -50 (Removes 50 chips)""");
+                        break;
+                    case "2":
+                        listProduct(productList,orderList);
+                        FileHandle.saveOrder(orderList,memberID);
+                        break whileyaya;
+                    case "3":
+                        System.out.println("====== Cart ======");
+                        for (Product P:orderList) {
+                            System.out.printf("%-15s%-7d%n",P.getName(),P.getQuality());
+                        }
+                        System.out.println("==================");
+                        break;
+                    default:
+                        System.out.println("Input incorrect");
+                        break;
+                }
+            }
+        }
+    }
+
+    public static void listProduct(ArrayList<Product> productList,ArrayList<Product> orderList){
+        Scanner input = new Scanner(System.in);
+        System.out.println("===== SE STORE's Products =====");
+        System.out.printf("%-10s%-20s%-25s%-10s\n", "#", "Name", "Price(฿)", "Quantity");
+        int number = 1;
+        for (Product p : productList) {
+            String productNumber = String.valueOf(number++);
+            String name = p.getName();
+            String price;
+            int quantity = p.getQuality();
+            price = String.format("%.2f", p.getPrice() * 34);
+            System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
+        }
+        System.out.println("==============================");
+        whilestop:
+        while (true){
+            try {
+                System.out.println("(Enter Q to exit.)");
+                System.out.print("Enter : ");
+                String[] command = input.nextLine().split(" ");
+                if (command.length!=2){
+                    if (command[0].equalsIgnoreCase("q")){
+                        break whilestop;
+                    }
+                    throw new InputMismatchException("Input incorrect(please enter in format 1 50)");
+                }
+                int indexOfProduct = Integer.parseInt(command[0])-1;
+                int indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
+                int value,newValue;
+                Product listProduct;
+                if (indexOfProduct<0||indexOfProduct>productList.size()-1){
+                    throw new IndexOutOfBoundsException("Input incorrect(Index out of bound)");
+                }
+                if (!isDigit(command[1])){
+                    throw new RuntimeException("input incorrect(input number only)");
+                }
+                listProduct = productList.get(indexOfProduct);
+                value = Integer.parseInt(command[1]);
+                if (command[1].charAt(0)=='+'||command[1].charAt(0)=='-'){
+                    if (indexOfOrder!=-1&&orderList.get(indexOfOrder).getQuality()+value>listProduct.getQuality()){
+                        throw new RuntimeException("input incorrect(cannot add more than available quantity)");
+                    } else if (value>listProduct.getQuality()){
+                        throw new RuntimeException("input incorrect(cannot add more than available quantity)");
+                    }
+                    if (indexOfOrder!=-1){
+                        newValue = orderList.get(indexOfOrder).getQuality()+value;
+                        orderList.get(indexOfOrder).setQuality(newValue);
+                    } else {
+                        orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), listProduct.getQuality(), listProduct.getSuppID()));
+                        indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
+                        orderList.get(indexOfOrder).setQuality(value);
+                    }
+                    if (orderList.get(indexOfOrder).getQuality()<=0){
+                        orderList.remove(indexOfOrder);
+                    }
+                    System.out.println(orderList.get(indexOfOrder).getName()+" ("+orderList.get(indexOfOrder).getQuality()+")"+" in cart");
+                } else if (isDigit(command[1].substring(0,1))){
+                    if (value>listProduct.getQuality()){
+                        throw new RuntimeException("input incorrect(cannot add more than available quantity)");
+                    }
+                    if (indexOfOrder!=-1){
+                        orderList.get(indexOfOrder).setQuality(value);
+                    } else {
+                        orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), listProduct.getQuality(), listProduct.getSuppID()));
+                        indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
+                        orderList.get(indexOfOrder).setQuality(value);
+                    }
+                    if (orderList.get(indexOfOrder).getQuality()<=0){
+                        orderList.remove(indexOfOrder);
+                    }
+                    System.out.println(orderList.get(indexOfOrder).getName()+" ("+orderList.get(indexOfOrder).getQuality()+")"+" in cart");
+                } else {
+                    throw new InputMismatchException("Input incorrect");
+                }
+            } catch (Exception e){
+                System.out.println(e.getMessage());
+            }
+        }
+    }
+
+    public static int findOrderIndex(ArrayList<Product> orderList,String name){
+        for (int i = 0; i < orderList.size(); i++) {
+            if (orderList.get(i).getName().equals(name)){
+                return i;
+            }
+        }
+        return -1;
     }
 
     //Print supplier from supplierList
