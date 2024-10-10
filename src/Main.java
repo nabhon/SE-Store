@@ -213,7 +213,6 @@ public class Main {
             System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
         }
         System.out.println("==============================");
-        whilestop:
         while (true){
             try {
                 System.out.println("(Enter Q to exit.)");
@@ -221,7 +220,7 @@ public class Main {
                 String[] command = input.nextLine().split(" ");
                 if (command.length!=2){
                     if (command[0].equalsIgnoreCase("q")){
-                        break whilestop;
+                        break;
                     }
                     throw new InputMismatchException("Input incorrect(please enter in format 1 50)");
                 }
