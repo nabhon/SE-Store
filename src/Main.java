@@ -215,7 +215,6 @@ public class Main {
         System.out.println("==============================");
         while (true){
             try {
-                System.out.println("(Enter Q to exit.)");
                 System.out.print("Enter : ");
                 String[] command = input.nextLine().split(" ");
                 if (command.length!=2){
@@ -224,18 +223,20 @@ public class Main {
                     }
                     throw new InputMismatchException("Input incorrect(please enter in format 1 50)");
                 }
-                int indexOfProduct = Integer.parseInt(command[0])-1;
-                int indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
-                int value,newValue;
-                Product listProduct;
-                if (indexOfProduct<0||indexOfProduct>productList.size()-1){
-                    throw new IndexOutOfBoundsException("Input incorrect(Index out of bound)");
+                if (!isDigit(command[0])){
+                    throw new RuntimeException("input incorrect(input number only)");
                 }
                 if (!isDigit(command[1])){
                     throw new RuntimeException("input incorrect(input number only)");
                 }
-                listProduct = productList.get(indexOfProduct);
-                value = Integer.parseInt(command[1]);
+                int indexOfProduct = Integer.parseInt(command[0])-1;
+                if (indexOfProduct<0||indexOfProduct>productList.size()-1){
+                    throw new IndexOutOfBoundsException("Input incorrect(Index out of bound)");
+                }
+                int indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
+                int value = Integer.parseInt(command[1]);
+                int newValue;
+                Product listProduct = productList.get(indexOfProduct);
                 if (command[1].charAt(0)=='+'||command[1].charAt(0)=='-'){
                     if (indexOfOrder!=-1&&orderList.get(indexOfOrder).getQuality()+value>listProduct.getQuality()){
                         throw new RuntimeException("input incorrect(cannot add more than available quantity)");
@@ -274,6 +275,7 @@ public class Main {
                 }
             } catch (Exception e){
                 System.out.println(e.getMessage());
+                System.out.println("Please try again or enter 'Q' to exit");
             }
         }
     }
