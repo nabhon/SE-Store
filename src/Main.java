@@ -20,7 +20,11 @@ public class Main {
         FileHandle.fileRead(productList,supplierList,memberList);
         mainWhile:
         while (true){
-            menu();
+            System.out.println("===== SE STORE =====");
+            System.out.println("1. Login");
+            System.out.println("2. Exit");
+            System.out.println("====================");
+            System.out.print("Select (1-2) : ");
             try {
                 int command = input.nextInt();
                 switch (command){
@@ -40,27 +44,6 @@ public class Main {
             }
         }
     }
-
-    //Check if String X is a digit
-    public static boolean isDigit(String id){
-        try {
-            Integer.parseInt(id);
-            return true;
-        } catch (Exception e){
-            return false;
-        }
-    }
-
-    //Print menu
-    public static void menu(){
-        System.out.println("===== SE STORE =====");
-        System.out.println("1. Login");
-        System.out.println("2. Exit");
-        System.out.println("====================");
-        System.out.print("Select (1-2) : ");
-    }
-
-    //Method for login menu
 
     //Show user data and menu
     public static void getUserData(Member currentLogin,ArrayList<Product> productList,ArrayList<Supplier> supplierList){
@@ -94,10 +77,10 @@ public class Main {
                             showSupplier(productList,supplierList,currentLogin);
                             break;
                         case 2:
-                            FileHandle.addSupplier(supplierList);
+                            addSupplier(supplierList);
                             break;
                         case 3:
-                            editSupplierList(supplierList);
+                            editSupplier(supplierList);
                             break;
                         case 4:
                             editProduct(productList);
@@ -317,6 +300,59 @@ public class Main {
         }
     }
 
+    //Add new supplier to the file
+    public static void addSupplier(ArrayList<Supplier> supplierList) throws IOException {
+        Scanner input = new Scanner(System.in);
+        boolean checkValid = true;
+        System.out.println("=====Add Supplier=====");
+        System.out.print("Supplier Name : ");
+        String name = input.nextLine();
+        System.out.print("Contract Name : ");
+        String contractName = input.nextLine();
+        System.out.print("Building Number : ");
+        String buildingNum = input.nextLine();
+        System.out.print("Street Name : ");
+        String streetName = input.nextLine();
+        System.out.print("City : ");
+        String cityName = input.nextLine();
+        System.out.print("Phone : ");
+        String phoneNum = input.nextLine();
+        System.out.print("Email : ");
+        String email = input.nextLine();
+        if (name.length()<=2){
+            checkValid = false;
+        }
+        if (contractName.length()<=4){
+            checkValid = false;
+        }
+        if (buildingNum.length()==0){
+            checkValid = false;
+        }
+        if (streetName.length()<=2){
+            checkValid = false;
+        }
+        if (cityName.length()<=2){
+            checkValid = false;
+        }
+        if (phoneNum.length()!=10){
+            checkValid = false;
+        }
+        if (email.length()<=2||!email.contains("@")){
+            checkValid = false;
+        }
+        if (checkValid){
+            String phone = phoneNum.substring(0,3)+"-"+phoneNum.substring(3,6)+"-"+phoneNum.substring(6,10);
+            String address = buildingNum+" "+streetName+", "+cityName;
+            Supplier newSupplier = new Supplier(String.valueOf(supplierList.size()+1),name,contractName,address,phone,email);
+            supplierList.add(newSupplier);
+            FileHandle.saveSupplier(supplierList);
+            System.out.println("Success - New Supplier has been created!");
+        } else {
+            System.out.println("Error! - Your Information are Incorrect!");
+        }
+        System.out.println("======================");
+    }
+
     //Print product from productList that has ID equal to supplier ID
     public static void showProduct(ArrayList<Product> productList,Supplier selectSupplier,Member currentLogin) {
         Scanner input = new Scanner(System.in);
@@ -456,7 +492,7 @@ public class Main {
     }
 
     //Method แสดง Supplier สำหรับเลือกแก้ Supplier
-    public static void editSupplierList(ArrayList<Supplier> supplierList) throws IOException {
+    public static void editSupplier(ArrayList<Supplier> supplierList) throws IOException {
         Scanner input = new Scanner(System.in);
         whileyaya:
         while (true) {
@@ -474,8 +510,49 @@ public class Main {
                 if (command.equalsIgnoreCase("Q")) {
                     break whileyaya;
                 } else if (isDigit(command)&&findID(command,supplierList.size())) {
-                    editSupplier(supplierList.get(Integer.parseInt(command)-1));
-                    FileHandle.saveSupplier(supplierList);
+                    Supplier supplier = supplierList.get(Integer.parseInt(command)-1);
+                    boolean valid = true;
+                    System.out.println("==== Edit info of "+supplier.getSuppName()+" ====");
+                    System.out.println("Type new info or Hyphen (-) for none edit.");
+                    System.out.print("Supplier Name : ");
+                    String name = input.nextLine();
+                    System.out.print("Contact Name : ");
+                    String contractName = input.nextLine();
+                    System.out.print("Phone : ");
+                    String phone = input.nextLine();
+                    System.out.print("Email : ");
+                    String email = input.nextLine();
+                    if (name.length()<=2&&!name.equals("-")){
+                        valid = false;
+                    }
+                    if (contractName.length()<=4&&!contractName.equals("-")){
+                        valid = false;
+                    }
+                    if (phone.length()!=10&&!phone.equals("-")){
+                        valid = false;
+                    }
+                    if ((email.length()<=2||!email.contains("@"))&&!email.equals("-")){
+                        valid = false;
+                    }
+                    if (valid){
+                        if (!name.equals("-")){
+                            supplier.setSuppName(name);
+                        }
+                        if (!contractName.equals("-")){
+                            supplier.setContractName(contractName);
+                        }
+                        if (!phone.equals("-")){
+                            String phoneNum = phone.substring(0,3)+"-"+phone.substring(3,6)+"-"+phone.substring(6,10);
+                            supplier.setPhone(phoneNum);
+                        }
+                        if (!email.equals("-")){
+                            supplier.setEmail(email);
+                        }
+                        System.out.println("Success - Supplier has been updated!");
+                        FileHandle.saveSupplier(supplierList);
+                    } else {
+                        System.out.println("Failed - Please try again!");
+                    }
                     break whileyaya;
                 } else {
                     System.out.println("Input Incorrect");
@@ -484,53 +561,17 @@ public class Main {
         }
     }
 
-    //Method แก้ Supplier จาก editSupplierList
-    public static void editSupplier(Supplier supplier){
-        Scanner input = new Scanner(System.in);
-        boolean valid = true;
-        System.out.println("==== Edit info of "+supplier.getSuppName()+" ====");
-        System.out.println("Type new info or Hyphen (-) for none edit.");
-        System.out.print("Supplier Name : ");
-        String name = input.nextLine();
-        System.out.print("Contact Name : ");
-        String contractName = input.nextLine();
-        System.out.print("Phone : ");
-        String phone = input.nextLine();
-        System.out.print("Email : ");
-        String email = input.nextLine();
-        if (name.length()<=2&&!name.equals("-")){
-            valid = false;
-        }
-        if (contractName.length()<=4&&!contractName.equals("-")){
-            valid = false;
-        }
-        if (phone.length()!=10&&!phone.equals("-")){
-            valid = false;
-        }
-        if ((email.length()<=2||!email.contains("@"))&&!email.equals("-")){
-            valid = false;
-        }
-        if (valid){
-            if (!name.equals("-")){
-                supplier.setSuppName(name);
-            }
-            if (!contractName.equals("-")){
-                supplier.setContractName(contractName);
-            }
-            if (!phone.equals("-")){
-                String phoneNum = phone.substring(0,3)+"-"+phone.substring(3,6)+"-"+phone.substring(6,10);
-                supplier.setPhone(phoneNum);
-            }
-            if (!email.equals("-")){
-                supplier.setEmail(email);
-            }
-            System.out.println("Success - Supplier has been updated!");
-        } else {
-            System.out.println("Failed - Please try again!");
+    //Check if String X is a digit
+    public static boolean isDigit(String id){
+        try {
+            Integer.parseInt(id);
+            return true;
+        } catch (Exception e){
+            return false;
         }
     }
 
-    //Check if user input for supplier is within supplierList
+    //Check if user input for supplier is within index of supplierList
     public static boolean findID(String id,int supplierListSize){
         int checker = Integer.parseInt(id);
         return checker <= supplierListSize && checker > 0;

@@ -3,59 +3,6 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 public class FileHandle {
-    //Add new supplier to the file
-    public static void addSupplier(ArrayList<Supplier> supplierList) throws IOException {
-        Scanner input = new Scanner(System.in);
-        boolean checkValid = true;
-        System.out.println("=====Add Supplier=====");
-        System.out.print("Supplier Name : ");
-        String name = input.nextLine();
-        System.out.print("Contract Name : ");
-        String contractName = input.nextLine();
-        System.out.print("Building Number : ");
-        String buildingNum = input.nextLine();
-        System.out.print("Street Name : ");
-        String streetName = input.nextLine();
-        System.out.print("City : ");
-        String cityName = input.nextLine();
-        System.out.print("Phone : ");
-        String phoneNum = input.nextLine();
-        System.out.print("Email : ");
-        String email = input.nextLine();
-        if (name.length()<=2){
-            checkValid = false;
-        }
-        if (contractName.length()<=4){
-            checkValid = false;
-        }
-        if (buildingNum.length()==0){
-            checkValid = false;
-        }
-        if (streetName.length()<=2){
-            checkValid = false;
-        }
-        if (cityName.length()<=2){
-            checkValid = false;
-        }
-        if (phoneNum.length()!=10){
-            checkValid = false;
-        }
-        if (email.length()<=2||!email.contains("@")){
-            checkValid = false;
-        }
-        if (checkValid){
-            String phone = phoneNum.substring(0,3)+"-"+phoneNum.substring(3,6)+"-"+phoneNum.substring(6,10);
-            String address = buildingNum+" "+streetName+", "+cityName;
-            Supplier newSupplier = new Supplier(String.valueOf(supplierList.size()+1),name,contractName,address,phone,email);
-            supplierList.add(newSupplier);
-            saveSupplier(supplierList);
-            System.out.println("Success - New Supplier has been created!");
-        } else {
-            System.out.println("Error! - Your Information are Incorrect!");
-        }
-        System.out.println("======================");
-    }
-
     //อ่านไฟล์ Text ข้อมูล แล้วเก็บค่าลงใน Array productList
     public static void fileRead(ArrayList<Product> productList,ArrayList<Supplier> supplierList,ArrayList<Member> memberList) throws FileNotFoundException {
         File productInput = new File("file/PRODUCT.txt");
