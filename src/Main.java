@@ -110,7 +110,8 @@ public class Main {
                             showSupplier(productList,supplierList,currentLogin);
                             break;
                         case 2:
-                            orderProduct(productList,orderList,currentLogin.getMemberID());
+                            orderProduct(productList,orderList);
+                            FileHandle.saveOrder(orderList,currentLogin.getMemberID());
                             break;
                         case 3:
                             break whilestop;
@@ -126,65 +127,9 @@ public class Main {
         }
     }
 
-    public static void orderProduct(ArrayList<Product> productList,ArrayList<Product> orderList,int memberID) throws IOException {
+    public static void orderProduct(ArrayList<Product> productList,ArrayList<Product> orderList) throws IOException {
         Scanner input = new Scanner(System.in);
-        whileyaya:
-        while (true) {
-            System.out.println("===== SE STORE's Products =====");
-            System.out.printf("%-10s%-20s%-25s%-10s\n", "#", "Name", "Price(฿)", "Quantity");
-            int number = 1;
-            for (Product p : productList) {
-                String productNumber = String.valueOf(number++);
-                String name = p.getName();
-                String price;
-                int quantity = p.getQuality();
-                price = String.format("%.2f", p.getPrice() * 34);
-                System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
-            }
-            System.out.println("====================");
-            while (true) {
-                System.out.println("Enter the product number followed by the quantity.");
-                System.out.println("1. How to Order");
-                System.out.println("2. List Products");
-                System.out.println("3. Show Cart");
-                System.out.println("Q. Exit");
-                System.out.print("Enter : ");
-                String command = input.nextLine();
-                switch (command){
-                    case "Q","q":
-                        break whileyaya;
-                    case "1":
-                        System.out.println("""
-                                How to Order:
-                                To Add Product:
-                                \t\tEnter the product number followed by the quantity.
-                                \t\tExample: 1 50 (Adds 50 chips)
-                                To Adjust Quantity:
-                                \t\t+ to add more items: 1 +50 (Adds 50 more chips)
-                                \t\t- to reduce items: 1 -50 (Removes 50 chips)""");
-                        break;
-                    case "2":
-                        listProduct(productList,orderList);
-                        FileHandle.saveOrder(orderList,memberID);
-                        break whileyaya;
-                    case "3":
-                        System.out.println("====== Cart ======");
-                        for (Product P:orderList) {
-                            System.out.printf("%-15s%-7d%n",P.getName(),P.getQuality());
-                        }
-                        System.out.println("==================");
-                        break;
-                    default:
-                        System.out.println("Input incorrect");
-                        break;
-                }
-            }
-        }
-    }
-
-    public static void listProduct(ArrayList<Product> productList,ArrayList<Product> orderList){
-        Scanner input = new Scanner(System.in);
-        System.out.println("===== SE STORE's Products =====");
+        System.out.println("============= SE STORE's Products =============");
         System.out.printf("%-10s%-20s%-25s%-10s\n", "#", "Name", "Price(฿)", "Quantity");
         int number = 1;
         for (Product p : productList) {
@@ -195,75 +140,117 @@ public class Main {
             price = String.format("%.2f", p.getPrice() * 34);
             System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
         }
-        System.out.println("==============================");
-        while (true){
-            try {
-                System.out.print("Enter : ");
-                String[] command = input.nextLine().split(" ");
-                if (command.length==1){
-                    if (command[0].equalsIgnoreCase("q")){
-                        break;
-                    } else {
-                        throw new InputMismatchException("Input incorrect");
+        System.out.println("===============================================");
+        System.out.println("Enter the product number followed by the quantity.");
+        System.out.println("1. How to Order");
+        System.out.println("2. List Products");
+        System.out.println("3. Show Cart");
+        System.out.println("Q. Exit");
+        whileyaya:
+        while (true) {
+            while (true) {
+                try{
+                    System.out.print("Enter : ");
+                    String[] command = input.nextLine().split(" ");
+                    boolean removeCheck = false;
+                    //ถ้า User กรอกมาตัวเดียวให้เช็คว่าตรง 1 2 3 Q ไหมถ้าไม่ก็ Error
+                    if (command.length==1){
+                        if (command[0].equalsIgnoreCase("q")){
+                            break whileyaya;
+                        } else if (command[0].equalsIgnoreCase("1")){
+                            System.out.println("""
+                                How to Order:
+                                To Add Product:
+                                \t\tEnter the product number followed by the quantity.
+                                \t\tExample: 1 50 (Adds 50 chips)
+                                To Adjust Quantity:
+                                \t\t+ to add more items: 1 +50 (Adds 50 more chips)
+                                \t\t- to reduce items: 1 -50 (Removes 50 chips)""");
+                            break;
+                        } else if (command[0].equalsIgnoreCase("2")){
+                            System.out.println("============= SE STORE's Products =============");
+                            System.out.printf("%-10s%-20s%-25s%-10s\n", "#", "Name", "Price(฿)", "Quantity");
+                            number = 1;
+                            for (Product p : productList) {
+                                String productNumber = String.valueOf(number++);
+                                String name = p.getName();
+                                String price;
+                                int quantity = p.getQuality();
+                                price = String.format("%.2f", p.getPrice() * 34);
+                                System.out.printf("%-10s%-20s%-25s%-10d\n", productNumber, name, price, quantity);
+                            }
+                            System.out.println("===============================================");
+                            break ;
+                        } else if (command[0].equalsIgnoreCase("3")){
+                            System.out.println("====== Cart ======");
+                            for (Product P:orderList) {
+                                System.out.printf("%-15s%-7d%n",P.getName(),P.getQuality());
+                            }
+                            System.out.println("==================");
+                            break;
+                        } else {
+                            throw new InputMismatchException("Input incorrect");
+                        }
+                    } else if (command.length!=2){
+                        throw new InputMismatchException("Input incorrect(please enter in format 1 50)");
                     }
-                } else if (command.length!=2){
-                    throw new InputMismatchException("Input incorrect(please enter in format 1 50)");
-                }
-                if (!isDigit(command[0])||!isDigit(command[1])){
-                    throw new RuntimeException("input incorrect(input number only)");
-                }
-                int indexOfProduct = Integer.parseInt(command[0])-1;
-                if (indexOfProduct<0||indexOfProduct>productList.size()-1){
-                    throw new IndexOutOfBoundsException("Input incorrect(Index out of bound)");
-                }
-                int indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
-                int value = Integer.parseInt(command[1]);
-                int newValue;
-                Product listProduct = productList.get(indexOfProduct);
-                //กรณีที่มี + หรือ -
-                if (command[1].charAt(0)=='+'||command[1].charAt(0)=='-'){
-                    //ถ้าไม่มี Product อยู่และใส่จำนวนเกินจำนวนที่มีในคลังให้ Error
-                    if (indexOfOrder!=-1&&orderList.get(indexOfOrder).getQuality()+value>listProduct.getQuality()){
-                        throw new RuntimeException("input incorrect(cannot add more than available quantity)");
-                    } else if (value>listProduct.getQuality()){
-                        throw new RuntimeException("input incorrect(cannot add more than available quantity)");
+                    if (!isDigit(command[0])||!isDigit(command[1])){
+                        throw new RuntimeException("input incorrect(input number only)");
                     }
-                    //ถ้ามีค่าอยู่แล้วให้เอาค่า +- เข้าไป +
-                    //ถ้าไม่มีค่าอยู่ให้สร้าง Product ใหม่เข้าไปใน Cart
-                    if (indexOfOrder!=-1){
-                        newValue = orderList.get(indexOfOrder).getQuality()+value;
-                        orderList.get(indexOfOrder).setQuality(newValue);
+                    int indexOfProduct = Integer.parseInt(command[0])-1;
+                    if (indexOfProduct<0||indexOfProduct>productList.size()-1){
+                        throw new IndexOutOfBoundsException("Input incorrect(Index out of bound)");
+                    }
+                    int indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
+                    int value = Integer.parseInt(command[1]);
+                    int newValue;
+                    Product listProduct = productList.get(indexOfProduct);
+                    //กรณีที่มี + หรือ -
+                    if (command[1].charAt(0)=='+'||command[1].charAt(0)=='-'){
+                        //ถ้าไม่มี Product อยู่และใส่จำนวนเกินจำนวนที่มีในคลังให้ Error
+                        if (indexOfOrder!=-1&&orderList.get(indexOfOrder).getQuality()+value>listProduct.getQuality()){
+                            throw new RuntimeException("input incorrect(cannot add more than available quantity)");
+                        } else if (value>listProduct.getQuality()){
+                            throw new RuntimeException("input incorrect(cannot add more than available quantity)");
+                        }
+                        //ถ้ามีค่าอยู่แล้วให้เอาค่า +- เข้าไป +
+                        //ถ้าไม่มีค่าอยู่ให้สร้าง Product ใหม่เข้าไปใน Cart
+                        if (indexOfOrder!=-1){
+                            newValue = orderList.get(indexOfOrder).getQuality()+value;
+                            orderList.get(indexOfOrder).setQuality(newValue);
+                        } else {
+                            orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), value, listProduct.getSuppID()));
+                            indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
+                        }
+                        //ถ้าค่าหลังจาก +- เสร็จแล้วเป็น 0 หรือน้อยกว่าให้ลบทิ้ง
+                        //กรณีที่ไม่มี +-
                     } else {
-                        orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), value, listProduct.getSuppID()));
-                        indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
+                        //ถ้าค่าที่กรอกมากกว่า Product ที่มีอยู่ให้ Error
+                        if (value>listProduct.getQuality()){
+                            throw new RuntimeException("input incorrect(cannot add more than available quantity)");
+                        }
+                        //ถ้ามี Product แล้วให้แก้ไขค่าใหม่ลงไปถ้าไม่มีให้สร้าง Product ใหม่ในตะกร้า
+                        if (indexOfOrder!=-1){
+                            orderList.get(indexOfOrder).setQuality(value);
+                        } else {
+                            orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), value, listProduct.getSuppID()));
+                            indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
+                        }
                     }
                     //ถ้าค่าหลังจาก +- เสร็จแล้วเป็น 0 หรือน้อยกว่าให้ลบทิ้ง
                     if (orderList.get(indexOfOrder).getQuality()<=0){
+                        System.out.println(orderList.get(indexOfOrder).getName() + " removed from cart");
                         orderList.remove(indexOfOrder);
+                        removeCheck = true;
                     }
-                    System.out.println(orderList.get(indexOfOrder).getName()+" ("+orderList.get(indexOfOrder).getQuality()+")"+" in cart");
-                //กรณีที่ไม่มี +-
-                } else {
-                    //ถ้าค่าที่กรอกมากกว่า Product ที่มีอยู่ให้ Error
-                    if (value>listProduct.getQuality()){
-                        throw new RuntimeException("input incorrect(cannot add more than available quantity)");
+                    if (!removeCheck) {
+                        System.out.println(orderList.get(indexOfOrder).getName() + " (" + orderList.get(indexOfOrder).getQuality() + ")" + " in cart");
                     }
-                    //ถ้ามี Product แล้วให้แก้ไขค่าใหม่ลงไปถ้าไม่มีให้สร้าง Product ใหม่ในตะกร้า
-                    if (indexOfOrder!=-1){
-                        orderList.get(indexOfOrder).setQuality(value);
-                    } else {
-                        orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), value, listProduct.getSuppID()));
-                        indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
-                    }
-                    //ถ้าค่าหลังจาก +- เสร็จแล้วเป็น 0 หรือน้อยกว่าให้ลบทิ้ง
-                    if (orderList.get(indexOfOrder).getQuality()<=0){
-                        orderList.remove(indexOfOrder);
-                    }
-                    System.out.println(orderList.get(indexOfOrder).getName()+" ("+orderList.get(indexOfOrder).getQuality()+")"+" in cart");
+                } catch (Exception e){
+                    System.out.println(e.getMessage());
+                    System.out.println("Please try again or enter 'Q' to exit");
                 }
-            } catch (Exception e){
-                System.out.println(e.getMessage());
-                System.out.println("Please try again or enter 'Q' to exit");
+
             }
         }
     }
