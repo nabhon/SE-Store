@@ -3,12 +3,12 @@ import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 /*
-Program name : SE Store #4
+Program name : SE Store
 Student ID : 66160351
 Student name : Nabhon Karladee
 Date : 14/8/24
-Last Update : 9/9/24
-Description : SE Store app for showing store menu
+Last Update : 18/10/24
+Description : SE Store app
  */
 
 public class Main {
@@ -200,16 +200,16 @@ public class Main {
             try {
                 System.out.print("Enter : ");
                 String[] command = input.nextLine().split(" ");
-                if (command.length!=2){
+                if (command.length==1){
                     if (command[0].equalsIgnoreCase("q")){
                         break;
+                    } else {
+                        throw new InputMismatchException("Input incorrect");
                     }
+                } else if (command.length!=2){
                     throw new InputMismatchException("Input incorrect(please enter in format 1 50)");
                 }
-                if (!isDigit(command[0])){
-                    throw new RuntimeException("input incorrect(input number only)");
-                }
-                if (!isDigit(command[1])){
+                if (!isDigit(command[0])||!isDigit(command[1])){
                     throw new RuntimeException("input incorrect(input number only)");
                 }
                 int indexOfProduct = Integer.parseInt(command[0])-1;
@@ -220,41 +220,46 @@ public class Main {
                 int value = Integer.parseInt(command[1]);
                 int newValue;
                 Product listProduct = productList.get(indexOfProduct);
+                //กรณีที่มี + หรือ -
                 if (command[1].charAt(0)=='+'||command[1].charAt(0)=='-'){
+                    //ถ้าไม่มี Product อยู่และใส่จำนวนเกินจำนวนที่มีในคลังให้ Error
                     if (indexOfOrder!=-1&&orderList.get(indexOfOrder).getQuality()+value>listProduct.getQuality()){
                         throw new RuntimeException("input incorrect(cannot add more than available quantity)");
                     } else if (value>listProduct.getQuality()){
                         throw new RuntimeException("input incorrect(cannot add more than available quantity)");
                     }
+                    //ถ้ามีค่าอยู่แล้วให้เอาค่า +- เข้าไป +
+                    //ถ้าไม่มีค่าอยู่ให้สร้าง Product ใหม่เข้าไปใน Cart
                     if (indexOfOrder!=-1){
                         newValue = orderList.get(indexOfOrder).getQuality()+value;
                         orderList.get(indexOfOrder).setQuality(newValue);
                     } else {
-                        orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), listProduct.getQuality(), listProduct.getSuppID()));
+                        orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), value, listProduct.getSuppID()));
                         indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
-                        orderList.get(indexOfOrder).setQuality(value);
                     }
+                    //ถ้าค่าหลังจาก +- เสร็จแล้วเป็น 0 หรือน้อยกว่าให้ลบทิ้ง
                     if (orderList.get(indexOfOrder).getQuality()<=0){
                         orderList.remove(indexOfOrder);
                     }
                     System.out.println(orderList.get(indexOfOrder).getName()+" ("+orderList.get(indexOfOrder).getQuality()+")"+" in cart");
-                } else if (isDigit(command[1].substring(0,1))){
+                //กรณีที่ไม่มี +-
+                } else {
+                    //ถ้าค่าที่กรอกมากกว่า Product ที่มีอยู่ให้ Error
                     if (value>listProduct.getQuality()){
                         throw new RuntimeException("input incorrect(cannot add more than available quantity)");
                     }
+                    //ถ้ามี Product แล้วให้แก้ไขค่าใหม่ลงไปถ้าไม่มีให้สร้าง Product ใหม่ในตะกร้า
                     if (indexOfOrder!=-1){
                         orderList.get(indexOfOrder).setQuality(value);
                     } else {
-                        orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), listProduct.getQuality(), listProduct.getSuppID()));
+                        orderList.add(new Product(listProduct.getId(), listProduct.getName(), listProduct.getPrice(), value, listProduct.getSuppID()));
                         indexOfOrder = findOrderIndex(orderList,productList.get(indexOfProduct).getName());
-                        orderList.get(indexOfOrder).setQuality(value);
                     }
+                    //ถ้าค่าหลังจาก +- เสร็จแล้วเป็น 0 หรือน้อยกว่าให้ลบทิ้ง
                     if (orderList.get(indexOfOrder).getQuality()<=0){
                         orderList.remove(indexOfOrder);
                     }
                     System.out.println(orderList.get(indexOfOrder).getName()+" ("+orderList.get(indexOfOrder).getQuality()+")"+" in cart");
-                } else {
-                    throw new InputMismatchException("Input incorrect");
                 }
             } catch (Exception e){
                 System.out.println(e.getMessage());
