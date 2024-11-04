@@ -46,7 +46,7 @@ public class Main {
     }
 
     //Show user data and menu
-    public static void getUserData(Member currentLogin,ArrayList<Product> productList,ArrayList<Supplier> supplierList){
+    public static void getUserData(Member currentLogin,ArrayList<Product> productList,ArrayList<Supplier> supplierList,ArrayList<Member> memberList){
         Scanner input = new Scanner(System.in);
         ArrayList<Product> orderList = new ArrayList<>();
         String displayName = currentLogin.getMemberLastName().substring(0,1).toUpperCase()+". "+currentLogin.getMemberName()+" ("+currentLogin.getMemberStatus()+")";
@@ -100,7 +100,8 @@ public class Main {
                 System.out.println("====================");
                 System.out.println("1. Show Supplier");
                 System.out.println("2. Order Product");
-                System.out.println("3. Logout");
+                System.out.println("3. Checkout");
+                System.out.println("4. Logout");
                 System.out.println("====================");
                 System.out.print("Select (1-2) : ");
                 try {
@@ -114,6 +115,9 @@ public class Main {
                             FileHandle.saveOrder(orderList,currentLogin.getMemberID());
                             break;
                         case 3:
+                            checkOut(productList,memberList);
+                            break;
+                        case 4:
                             break whilestop;
                         default:
                             throw new InputMismatchException();
@@ -125,6 +129,83 @@ public class Main {
             }
 
         }
+    }
+
+    public static void checkOut(ArrayList<Product> productList,ArrayList<Member> memberList) throws IOException {
+        File suppInput = new File("file/CART.txt");
+        Scanner fileReader = new Scanner(suppInput);
+        System.out.println("============= Checkout =============");
+        System.out.printf("%-10s%-20s%-25s%-10s\n", "Buyer", "Name", "Price($)", "Quantity");
+        while (fileReader.hasNextLine()){
+            String[] readList = fileReader.nextLine().split("\t+");
+            int memID = Integer.parseInt(readList[0]);
+            int productID = Integer.parseInt(readList[1]);
+            int quantity = Integer.parseInt(readList[2]);
+            System.out.print(showCheckOutProduct(memID,productID,quantity,memberList,productList));
+        }
+        System.out.println("====================================");
+        Scanner input = new Scanner(System.in);
+        whileBreak:
+        while (true){
+            System.out.print("Confirm Order (Y/N) : ");
+            String confirm = input.next();
+            switch (confirm){
+                case "y","Y":
+                    checkOutProduct(productList);
+                    break;
+                case "n","N":
+                    System.out.println("Checkout canceled");
+                    break whileBreak;
+                default:
+                    System.out.println("Input invalid try again");
+            }
+        }
+    }
+
+    public static void checkOutProduct(ArrayList<Product> productList) throws IOException {
+        File suppInput = new File("file/CART.txt");
+        Scanner fileReader = new Scanner(suppInput);
+        while (fileReader.hasNextLine()){
+            String[] readList = fileReader.nextLine().split("\t+");
+            int productID = Integer.parseInt(readList[1]);
+            int quantity = Integer.parseInt(readList[2]);
+            for (Product P:productList) {
+                if (P.getId()==productID){
+                    int newQuantity = P.getQuality()-quantity;
+                    P.setQuality(newQuantity);
+                    break;
+                }
+            }
+        }
+        FileWriter file = new FileWriter("file/SUPPLIER.txt");
+        PrintWriter outputFile = new PrintWriter(file);
+        outputFile.close();
+    }
+
+    public static String showCheckOutProduct(int memID,int productID,int quantity,ArrayList<Member> memberList,ArrayList<Product> productList){
+        String showMemName = "";
+        String showProductName = "";
+        String showQuantity = String.valueOf(quantity);
+        double discountValue = 1;
+        double price = 0;
+        for (Member M:memberList) {
+            if (M.getMemberID()==memID){
+                showMemName = String.valueOf(M.getMemberName());
+                discountValue = M.getDiscount();
+                break;
+            }
+        }
+        for (Product P:productList) {
+            if (P.getId()==productID){
+                showProductName = String.valueOf(P.getName());
+                price = P.getPrice();
+                break;
+            }
+        }
+        String priceShow = String.format("%.2f",(price*discountValue));
+        String oldPrice = String.format("%.2f",price);
+        priceShow = String.format("%s (%s)",priceShow,oldPrice);
+        return String.format("%-10s%-20s%-25s%-10s\n",showMemName,showProductName,priceShow,showQuantity);
     }
 
     public static void orderProduct(ArrayList<Product> productList,ArrayList<Product> orderList) throws IOException {

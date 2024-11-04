@@ -22,7 +22,7 @@ public class LoginMenu {
             } else {
                 Member currentLogin = getMember(loginID,memberList);
                 if (checkIDValid(memberList,loginID)){
-                    Main.getUserData(currentLogin,productList,supplierList);
+                    Main.getUserData(currentLogin,productList,supplierList,memberList);
                 } else {
                     System.out.println("Error! - Your Account are Expired!");
                 }
